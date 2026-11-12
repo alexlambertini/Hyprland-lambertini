@@ -30,6 +30,16 @@ resolve_url() {
   # 1) serviço em execução do OpenCode: usa link de pareamento (conecta sem senha)
   local svc pair
   svc=$("$OPENCODE_BIN" service status 2>/dev/null | head -1 | tr -d '\r' || true)
+  if [ -z "$svc" ] || ! curl -fsS --max-time 1 "$svc" >/dev/null 2>&1; then
+    "$OPENCODE_BIN" service start >/dev/null 2>&1 || true
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+      svc=$("$OPENCODE_BIN" service status 2>/dev/null | head -1 | tr -d '\r' || true)
+      if [ -n "$svc" ] && curl -fsS --max-time 1 "$svc" >/dev/null 2>&1; then
+        break
+      fi
+      sleep 0.4
+    done
+  fi
   if [ -n "$svc" ] && curl -fsS --max-time 1 "$svc" >/dev/null 2>&1; then
     pair=$("$OPENCODE_BIN" pair 2>/dev/null | grep -oE 'http://[^ ]+/auth/connect/[^ ]+' | head -1 || true)
     if [ -n "$pair" ]; then
@@ -46,7 +56,7 @@ resolve_url() {
     return 0
   fi
 
-  # 3) inicia servidor local
+  # 3) fallback: inicia servidor local (pode exigir senha)
   if [ -x "$OPENCODE_BIN" ]; then
     nohup "$OPENCODE_BIN" serve --hostname 127.0.0.1 --port 4096 >/tmp/opencode-serve.log 2>&1 &
   else
