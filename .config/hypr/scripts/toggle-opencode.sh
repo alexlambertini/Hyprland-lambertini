@@ -1,5 +1,5 @@
 #!/bin/bash
-# Toggle OpenCode como painel lateral (overlay, estilo Central de Ações/Copilot)
+# Toggle OpenCode como painel lateral lado a lado (divide a tela)
 set -euo pipefail
 
 CLASS="opencode-assist"
@@ -14,10 +14,14 @@ dispatch() {
   fi
 }
 
-# Se não existe, inicia no special workspace
-if ! hyprctl clients -j 2>/dev/null | grep -q "\"class\": \"$CLASS\""; then
+ADDR=$(hyprctl clients -j 2>/dev/null | jq -r --arg c "$CLASS" '.[] | select(.class==$c) | .address' | head -1)
+
+if [ -z "$ADDR" ]; then
+  # Abre lado a lado à direita (dwindle: pré-seleciona divisão)
+  dispatch "layoutmsg preselect r"
   kitty --class "$CLASS" -e opencode >/dev/null 2>&1 &
-  sleep 0.4
+  exit 0
 fi
 
-dispatch "togglespecialworkspace opencode"
+# Se já existe: fecha para devolver espaço às janelas
+dispatch "closewindow address:$ADDR"

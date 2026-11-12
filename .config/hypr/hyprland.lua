@@ -328,8 +328,8 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + SHIFT + " .. key,     hl.dsp.window.move({ workspace = i }))
 end
 
--- OpenCode como assistente lateral (scratchpad)
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-opencode.sh"))
+-- OpenCode Web UI como painel lateral (divide a tela; 100% se workspace vazia)
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/scripts/opencode-web-panel.sh"))
 
 -- Scroll through existing workspaces with mainMod + scroll
 -- hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
@@ -429,9 +429,9 @@ hl.window_rule({
     float = true,
 })
 
--- OpenCode assistente lateral (lado a lado, divide a tela)
+-- Painel Web OpenCode (lado a lado)
 hl.window_rule({
-    name  = "opencode-assist",
-    match = { class = "opencode-assist" },
+    name  = "opencode-web",
+    match = { class = "opencode-web" },
     float = false,
 })
