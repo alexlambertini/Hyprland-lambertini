@@ -99,6 +99,8 @@ hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("XCURSOR_THEME", "Adwaita")
 hl.env("HYPRCURSOR_THEME", "Adwaita")
 
+hl.config({ cursor = { no_hardware_cursors = true } })
+
 
 -----------------------
 ----- PERMISSIONS -----
