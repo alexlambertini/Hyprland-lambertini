@@ -1,0 +1,95 @@
+* {
+    bg:      #1e1e2ef7;
+    bg-alt:  #252536f0;
+    fg:      #cccccc;
+    fg-dim:  #888888;
+    accent:  #df6124;
+    urgent:  #eb7087;
+
+    background-color: transparent;
+    text-color:       @fg;
+    font: "JetBrains Mono Nerd Font 12";
+}
+
+window {
+    location:         center;
+    anchor:           center;
+    width:            560px;
+    border:           1px;
+    border-color:     #ffffff22;
+    border-radius:    0px;
+    background-color: @bg;
+    padding:          12px;
+}
+
+mainbox {
+    spacing:          10px;
+    children:         [ inputbar, listview ];
+}
+
+inputbar {
+    spacing:          8px;
+    padding:          8px 10px;
+    background-color: @bg-alt;
+    border:           0px 0px 1px 0px;
+    border-color:     #ffffff18;
+    children:         [ prompt, entry ];
+}
+
+prompt {
+    text-color: @accent;
+    padding:    0 4px 0 0;
+}
+
+entry {
+    placeholder:       "Buscar...";
+    placeholder-color: @fg-dim;
+    text-color:        @fg;
+}
+
+listview {
+    lines:        8;
+    columns:      1;
+    fixed-height: true;
+    spacing:      2px;
+    scrollbar:    false;
+}
+
+element {
+    padding:       8px 10px;
+    spacing:       8px;
+    border-radius: 0px;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+element selected.normal {
+    background-color: #df612433;
+    text-color:       @accent;
+    border:           0px 0px 0px 2px;
+    border-color:     @accent;
+}
+
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+    vertical-align:   0.5;
+}
+
+element-icon {
+    size:             1.1em;
+    background-color: inherit;
+}
+
+message {
+    padding:          8px;
+    background-color: @bg-alt;
+}
+
+textbox {
+    text-color: @fg;
+}

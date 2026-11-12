@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Ajustar Wallpaper
+Comment=Alterar wallpaper no Hyprland
+Exec=/home/lambertini/bin/hypr-wallpaper-menu
+Icon=image
+Terminal=false
+Type=Application
+Categories=Graphics;
+Keywords=wallpaper background imagem

@@ -1,0 +1,20 @@
+#!/bin/bash
+# Script para alterar wallpaper no Hyprland via wofi (persistente com swaybg)
+
+WALLPAPERS_DIR="${1:-$HOME/Pictures/Wallpapers}"
+STATE_FILE="$HOME/.config/hypr/current-wallpaper"
+
+if [ ! -d "$WALLPAPERS_DIR" ]; then
+    mkdir -p "$WALLPAPERS_DIR"
+fi
+
+mkdir -p "$(dirname "$STATE_FILE")"
+
+SELECTED=$(find "$WALLPAPERS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | sort | wofi -d --dmenu -p "Selecione o wallpaper" -i)
+
+if [ -n "$SELECTED" ]; then
+    printf '%s\n' "$SELECTED" > "$STATE_FILE"
+    pkill -x swaybg 2>/dev/null || true
+    swaybg -i "$SELECTED" >/dev/null 2>&1 &
+    disown 2>/dev/null || true
+fi
