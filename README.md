@@ -9,10 +9,13 @@ Conjunto de configurações para **Hyprland (Lua, 0.57+)**, **Waybar** (baseado 
 - `.config/waybar/` — `config.jsonc`, `style.css` e scripts de widgets (clima, microfone, disco, tráfego de rede, layout de teclado, temperatura, toggles).
 - `.config/hypr/hyprland.lua` — atalhos, animações, gaps, restauração de wallpaper, autostart de dunst/notificação de música.
 - `.config/hypr/scripts/music-notify.sh` — notificação de faixa via `playerctl` + `notify-send`.
+- `.config/hypr/scripts/screenshot-region.sh` — captura de região (`grim` + `slurp`) com cópia para área de transferência e notificação.
+- `.config/hypr/current-wallpaper` — caminho do wallpaper padrão/restaurado.
 - `.config/rofi/` — tema/config do launcher (drun/run/window).
 - `.config/dunst/dunstrc` — notificações no mesmo visual.
 - `bin/hypr-wallpaper-menu` — seletor de wallpaper (wofi) com persistência via `swaybg`.
 - `.local/share/applications/hypr-wallpaper.desktop` — atalho no drun para o seletor de wallpaper.
+- `wallpapers/` — wallpapers incluídos (copiados para `~/Pictures/Wallpapers` pelo `install.sh`).
 
 ## Dependências
 
