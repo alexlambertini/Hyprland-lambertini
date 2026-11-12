@@ -14,9 +14,10 @@ backup_if_exists() {
 
 echo "== Instalando configurações do hypr-waybar-theme =="
 
-# Dependências (Fedora)
-# sudo dnf install -y waybar rofi dunst playerctl jq curl lm_sensors mpv audacious wl-clipboard
-# Opcionais: wttrbar, blueman, brightnessctl, power-profiles-daemon/tuned-ppd conforme hardware
+# Dependências (Fedora) - instale antes se necessário:
+# sudo dnf install -y waybar rofi dunst jq curl lm_sensors mpv audacious playerctl \
+#   wl-clipboard swaybg wofi grim slurp brightnessctl git
+# Opcionais: wttrbar, blueman, power-profiles-daemon ou tuned-ppd, qt6ct/kvantum (Qt)
 
 mkdir -p "$HOME/.config" "$HOME/bin" "$HOME/.local/share/applications"
 
@@ -50,6 +51,14 @@ cp -rf "$REPO_DIR/.config/rofi/." "$HOME/.config/rofi/"
 backup_if_exists "$HOME/.config/dunst"
 mkdir -p "$HOME/.config/dunst"
 cp -rf "$REPO_DIR/.config/dunst/." "$HOME/.config/dunst/"
+
+# GTK (Nautilus/GTK)
+backup_if_exists "$HOME/.config/gtk-3.0"
+mkdir -p "$HOME/.config/gtk-3.0"
+cp -rf "$REPO_DIR/.config/gtk-3.0/." "$HOME/.config/gtk-3.0/"
+backup_if_exists "$HOME/.config/gtk-4.0"
+mkdir -p "$HOME/.config/gtk-4.0"
+cp -rf "$REPO_DIR/.config/gtk-4.0/." "$HOME/.config/gtk-4.0/"
 
 # Bin e desktop
 backup_if_exists "$HOME/bin/hypr-wallpaper-menu"

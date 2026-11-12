@@ -1,0 +1,26 @@
+/* Tema GTK4 aproximado ao visual Waybar/Hyprland */
+@define-color accent_color #df6124;
+@define-color accent_bg_color #df6124;
+@define-color accent_fg_color #ffffff;
+@define-color window_bg_color #1e1e2e;
+@define-color window_fg_color #cccccc;
+@define-color view_bg_color #1e1e2e;
+@define-color view_fg_color #cccccc;
+@define-color headerbar_bg_color #252536;
+@define-color headerbar_fg_color #cccccc;
+@define-color popover_bg_color #252536;
+@define-color popover_fg_color #cccccc;
+@define-color card_bg_color #252536;
+@define-color card_fg_color #cccccc;
+@define-color sidebar_bg_color #1e1e2e;
+@define-color sidebar_fg_color #cccccc;
+
+.navigation-sidebar, .sidebar, placessidebar {
+  background-color: @sidebar_bg_color;
+  color: @sidebar_fg_color;
+}
+
+selection, *:selected, *.selected {
+  background-color: alpha(#df6124, 0.35);
+  color: #ffffff;
+}
