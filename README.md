@@ -139,7 +139,7 @@ Widgets ocultos ficam como **ícone apagado** (clicável) para reexibir. Estado 
 
 ## OpenCode Assistente (lateral)
 
-- **`SUPER + A`** ou botão **`custom/opencode`** na Waybar: executa `~/.config/hypr/scripts/toggle-opencode.sh` para abrir/fechar o OpenCode em `kitty` (classe `opencode-assist`) no *special workspace* `special:opencode` como **painel lateral sobreposto** (overlay, estilo Central de Ações/Copilot), sem dividir as janelas.
+- **`SUPER + A`** ou botão **`custom/opencode`** na Waybar: executa `~/.config/hypr/scripts/toggle-opencode.sh` para abrir/fechar o OpenCode em `kitty` (classe `opencode-assist`) como **painel lateral lado a lado** (tiled), dividindo a tela com as outras janelas.
 - Requer `opencode` instalado e disponível no `PATH` (ex.: `~/.opencode/bin/opencode`).
 
 ## Aplicativos padrão (opcional)

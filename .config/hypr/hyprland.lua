@@ -429,12 +429,9 @@ hl.window_rule({
     float = true,
 })
 
--- OpenCode assistente lateral (overlay, estilo Central de Ações/Copilot)
+-- OpenCode assistente lateral (lado a lado, divide a tela)
 hl.window_rule({
     name  = "opencode-assist",
     match = { class = "opencode-assist" },
-    workspace = "special:opencode",
-    float  = true,
-    size   = "38% 94%",
-    move   = "61% 3%",
+    float = false,
 })
