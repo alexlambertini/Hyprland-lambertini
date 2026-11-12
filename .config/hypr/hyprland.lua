@@ -429,7 +429,7 @@ hl.window_rule({
     float = true,
 })
 
--- OpenCode assistente lateral (special workspace)
+-- OpenCode assistente lateral (overlay, estilo Central de Ações/Copilot)
 hl.window_rule({
     name  = "opencode-assist",
     match = { class = "opencode-assist" },
