@@ -70,7 +70,14 @@ fi
 # Bin e desktop
 backup_if_exists "$HOME/bin/hypr-wallpaper-menu"
 cp -f "$REPO_DIR/bin/hypr-wallpaper-menu" "$HOME/bin/hypr-wallpaper-menu"
+if [ -f "$REPO_DIR/bin/hypr-resolution-menu" ]; then
+  backup_if_exists "$HOME/bin/hypr-resolution-menu"
+  cp -f "$REPO_DIR/bin/hypr-resolution-menu" "$HOME/bin/hypr-resolution-menu"
+fi
 cp -f "$REPO_DIR/.local/share/applications/hypr-wallpaper.desktop" "$HOME/.local/share/applications/hypr-wallpaper.desktop"
+if [ -f "$REPO_DIR/.local/share/applications/hypr-resolution.desktop" ]; then
+  cp -f "$REPO_DIR/.local/share/applications/hypr-resolution.desktop" "$HOME/.local/share/applications/hypr-resolution.desktop"
+fi
 
 # Permissões
 chmod +x "$HOME/.config/waybar/"*.sh "$HOME/.config/hypr/scripts/"*.sh "$HOME/bin/hypr-wallpaper-menu" 2>/dev/null || true

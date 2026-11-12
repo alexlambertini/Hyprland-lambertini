@@ -1,0 +1,62 @@
+#!/bin/bash
+# Script para ajustar resolução de monitores no Hyprland usando wlr-randr
+
+MONITORS=$(hyprctl monitors -j 2>/dev/null | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+names = []
+for m in data:
+    if m.get('name'):
+        names.append(m['name'])
+print('\n'.join(names))
+" 2>/dev/null)
+
+if [ -z "$MONITORS" ]; then
+    echo "Nenhum monitor encontrado"
+    exit 1
+fi
+
+MONITOR_LIST=()
+while IFS= read -r mon; do
+    MONITOR_LIST+=("$mon")
+done <<< "$MONITORS"
+
+MONITOR_CHOICE=""
+if [ ${#MONITOR_LIST[@]} -gt 0 ]; then
+    MONITOR_CHOICE=$(printf "%s\n" "${MONITOR_LIST[@]}" | rofi -dmenu -p "Selecione o monitor" -i)
+fi
+
+if [ -z "$MONITOR_CHOICE" ]; then
+    exit 0
+fi
+
+RESOLUTION_MENU=$(hyprctl monitors -j 2>/dev/null | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for m in data:
+    if m.get('name') == '$MONITOR_CHOICE':
+        modes = m.get('availableModes', [])
+        if isinstance(modes, list):
+            for mode in modes:
+                if isinstance(mode, dict):
+                    w = mode.get('width', 1920)
+                    h = mode.get('height', 1080)
+                    r = mode.get('refreshRate', 60)
+                    print(f\"{w}x{h}@{r:.2f}Hz\")
+                else:
+                    print(str(mode))
+        break
+" 2>/dev/null)
+
+if [ -z "$RESOLUTION_MENU" ]; then
+    RESOLUTION_MENU="1920x1080@60.00Hz"
+fi
+
+RESOLUTION_CHOICE=$(echo "$RESOLUTION_MENU" | rofi -dmenu -p "Selecione a resolução" -i)
+
+if [ -z "$RESOLUTION_CHOICE" ]; then
+    exit 0
+fi
+
+# Aplicar a resolução
+wlr-randr --output "$MONITOR_CHOICE" --mode "$RESOLUTION_CHOICE"

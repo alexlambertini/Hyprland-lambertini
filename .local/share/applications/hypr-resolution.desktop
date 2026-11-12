@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Ajustar Resolução
+Comment=Ajustar resolução de monitores no Hyprland
+Exec=/home/lambertini/bin/hypr-resolution-menu
+Icon=preferences-desktop-display
+Terminal=false
+Type=Application
+Categories=Settings;System;
+Keywords=resolução;monitor;display;tela;
+StartupNotify=false

@@ -2,8 +2,9 @@
 Name=Ajustar Wallpaper
 Comment=Alterar wallpaper no Hyprland
 Exec=/home/lambertini/bin/hypr-wallpaper-menu
-Icon=image
+Icon=preferences-desktop-wallpaper
 Terminal=false
 Type=Application
-Categories=Graphics;
-Keywords=wallpaper background imagem
+Categories=Settings;Graphics;
+Keywords=wallpaper;plano de fundo;imagem;foto;papel de parede;
+StartupNotify=false

@@ -16,7 +16,9 @@ Conjunto de configurações para **Hyprland (Lua, 0.57+)**, **Waybar** (baseado 
 - `.config/kitty/kitty.conf` — terminal Kitty com cores do tema, transparência, padding e ajustes visuais (cursor/abas).
 - `.config/gtk-3.0/` e `.config/gtk-4.0/` — ajustes de tema/cores GTK (aproxima o visual para apps GTK como Nautilus).
 - `bin/hypr-wallpaper-menu` — seletor de wallpaper (wofi) com persistência via `swaybg`.
-- `.local/share/applications/hypr-wallpaper.desktop` — atalho no drun para o seletor de wallpaper.
+- `bin/hypr-resolution-menu` — seletor de resolução/monitor (rofi + `hyprctl`/`wlr-randr`).
+- `.local/share/applications/hypr-wallpaper.desktop` — atalho no drun para ajustar wallpaper (ícone de imagem).
+- `.local/share/applications/hypr-resolution.desktop` — atalho no drun para ajustar resolução.
 - `wallpapers/` — wallpapers incluídos (copiados para `~/Pictures/Wallpapers` pelo `install.sh`).
 - `install.sh` — instala/configura (com backup) os arquivos no usuário.
 - `bootstrap.sh` — clona (se preciso), pode instalar dependências (Fedora) e roda o `install.sh`.
