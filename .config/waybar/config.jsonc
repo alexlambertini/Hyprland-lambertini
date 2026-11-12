@@ -41,7 +41,8 @@
     "cpu",
     "battery",
     "custom/separator2",
-    "tray"
+    "tray",
+    "custom/power"
   ],
   "hyprland/workspaces": {
     "disable-scroll": true,
@@ -352,6 +353,12 @@
     "exec": "~/.config/waybar/opencode.sh",
     "return-type": "json",
     "on-click": "~/.config/hypr/scripts/opencode-web-panel.sh"
+  },
+  "custom/power": {
+    "format": "⏻",
+    "tooltip": true,
+    "tooltip-format": "Energia (Desligar / Reiniciar / Suspender / Sair)",
+    "on-click": "~/.config/waybar/power-menu.sh"
   }
   
 }

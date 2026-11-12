@@ -121,7 +121,8 @@ button:hover {
 #idle_inhibitor,
 #custom-updatespacman,
 #custom-screenrecording-indicator,
-#custom-update {
+#custom-update,
+#custom-power {
   min-width: 14px;
   padding: 0px 4px;
   margin: 0px 2px 0px 2px;
@@ -324,4 +325,9 @@ animation: repeat;
   animation-timing-function: steps(12);
   animation-iteration-count: infinite;
   animation-direction: alternate;
+}
+
+#custom-power:hover {
+  color: @red;
+  opacity: 1;
 }
