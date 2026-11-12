@@ -60,6 +60,13 @@ backup_if_exists "$HOME/.config/gtk-4.0"
 mkdir -p "$HOME/.config/gtk-4.0"
 cp -rf "$REPO_DIR/.config/gtk-4.0/." "$HOME/.config/gtk-4.0/"
 
+# Kitty
+backup_if_exists "$HOME/.config/kitty"
+mkdir -p "$HOME/.config/kitty"
+if [ -d "$REPO_DIR/.config/kitty" ]; then
+  cp -rf "$REPO_DIR/.config/kitty/." "$HOME/.config/kitty/"
+fi
+
 # Bin e desktop
 backup_if_exists "$HOME/bin/hypr-wallpaper-menu"
 cp -f "$REPO_DIR/bin/hypr-wallpaper-menu" "$HOME/bin/hypr-wallpaper-menu"

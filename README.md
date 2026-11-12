@@ -13,6 +13,7 @@ Conjunto de configurações para **Hyprland (Lua, 0.57+)**, **Waybar** (baseado 
 - `.config/hypr/current-wallpaper` — caminho do wallpaper padrão/restaurado.
 - `.config/rofi/` — tema/config do launcher (drun/run/window).
 - `.config/dunst/dunstrc` — notificações no mesmo visual.
+- `.config/kitty/kitty.conf` — terminal Kitty com cores do tema, transparência, padding e ajustes visuais (cursor/abas).
 - `.config/gtk-3.0/` e `.config/gtk-4.0/` — ajustes de tema/cores GTK (aproxima o visual para apps GTK como Nautilus).
 - `bin/hypr-wallpaper-menu` — seletor de wallpaper (wofi) com persistência via `swaybg`.
 - `.local/share/applications/hypr-wallpaper.desktop` — atalho no drun para o seletor de wallpaper.
