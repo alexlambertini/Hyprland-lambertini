@@ -340,6 +340,9 @@ end
 -- OpenCode Web UI como painel lateral (divide a tela; 100% se workspace vazia)
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/scripts/opencode-web-panel.sh"))
 
+-- Menu de energia (Desligar / Reiniciar / Suspender / Sair / Bloquear)
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("~/.config/waybar/power-menu.sh"))
+
 -- Scroll through existing workspaces with mainMod + scroll
 -- hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 -- hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
