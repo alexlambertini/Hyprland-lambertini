@@ -314,11 +314,11 @@ hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("firefox"))
 
--- Navegação com setas: ←/→ workspaces (áreas de trabalho), ↑/↓ foco entre janelas
+-- Navegação com setas: ←/→ workspaces (áreas de trabalho), ↑/↓ monitores
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
+hl.bind(mainMod .. " + up",    hl.dsp.focus({ monitor = "-1" }))
+hl.bind(mainMod .. " + down",  hl.dsp.focus({ monitor = "+1" }))
 
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]

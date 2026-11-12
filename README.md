@@ -95,7 +95,7 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - `SUPER + Q` — fechar janela
 - `SUPER + V` — flutuar/tiling + centralizar
 - `SUPER + ←/→` — workspaces anterior/próximo (áreas de trabalho)
-- `SUPER + ↑/↓` — foco entre janelas
+- `SUPER + ↑/↓` — alternar entre monitores (indo e voltando)
 - `SUPER + SHIFT + ←/→/↑/↓` — mover janela
 - `SUPER + CTRL + ←/→/↑/↓` — redimensionar (segurar repete)
 - `SUPER + SHIFT + S` — captura de tela por região (salva em `~/Pictures/Screenshots` e copia para área de transferência)
