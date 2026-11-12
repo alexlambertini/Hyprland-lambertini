@@ -108,7 +108,7 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 
 ## Waybar: módulos e toggles
 
-- **OpenCode Assistente** (`custom/opencode`): botão na barra para abrir/fechar o painel lateral do OpenCode (também via `SUPER + A`).
+- **Assistente/OpenCode** (`custom/opencode`): botão na barra (exibido apenas se o `opencode` estiver instalado) para abrir/fechar o painel lateral (também via `SUPER + A`).
 - **Clima** (`custom/weather`): temperatura automática — clique para **ocultar/mostrar**.
 - **Teclado** (`custom/kblayout`): layout ativo — clique para ocultar/mostrar.
 - **Tráfego de rede** (`custom/netspeed`): ↓/↑ na interface — clique para ocultar/mostrar.

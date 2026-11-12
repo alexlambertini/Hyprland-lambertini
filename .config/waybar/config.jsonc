@@ -346,9 +346,11 @@
     "on-click-right": "~/.config/waybar/widget-toggle.sh mic 12"
   },
   "custom/opencode": {
-    "format": "󰚩",
+    "format": "{}",
     "tooltip": true,
-    "tooltip-format": "OpenCode Assistente (clique para abrir/fechar)\nAtalho: SUPER + A",
+    "interval": 30,
+    "exec": "~/.config/waybar/opencode.sh",
+    "return-type": "json",
     "on-click": "~/.config/hypr/scripts/toggle-opencode.sh"
   }
   
