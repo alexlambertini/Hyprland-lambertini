@@ -94,7 +94,8 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - `SUPER + RETURN` — terminal (kitty, configurado no lua)
 - `SUPER + Q` — fechar janela
 - `SUPER + V` — flutuar/tiling + centralizar
-- `SUPER + ←/→/↑/↓` — foco entre janelas
+- `SUPER + ←/→` — workspaces anterior/próximo (áreas de trabalho)
+- `SUPER + ↑/↓` — foco entre janelas
 - `SUPER + SHIFT + ←/→/↑/↓` — mover janela
 - `SUPER + CTRL + ←/→/↑/↓` — redimensionar (segurar repete)
 - `SUPER + SHIFT + S` — captura de tela por região (salva em `~/Pictures/Screenshots` e copia para área de transferência)
@@ -138,6 +139,11 @@ Widgets ocultos ficam como **ícone apagado** (clicável) para reexibir. Estado 
 xdg-mime default audacious.desktop audio/mpeg audio/flac audio/ogg
 xdg-mime default mpv.desktop video/mp4 video/x-matroska video/webm
 ```
+
+## Terminal (Kitty)
+
+- Config em `.config/kitty/kitty.conf`: fonte JetBrains Mono Nerd Font, paleta/cores do tema (`#1e1e2e`, `#cccccc`, `#df6124`), fundo com transparência, padding, cursor em *beam* com blink/trail, abas estilizadas e integração com shell.
+- Após instalar, recarregue o Kitty com `Ctrl+Shift+F5` (ou reabra o terminal).
 
 ## Notas
 
