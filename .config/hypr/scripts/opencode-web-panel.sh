@@ -27,11 +27,16 @@ if [ -n "$ADDR" ]; then
 fi
 
 resolve_url() {
-  # 1) serviço em execução do OpenCode (sem senha adicional)
-  local svc
+  # 1) serviço em execução do OpenCode: usa link de pareamento (conecta sem senha)
+  local svc pair
   svc=$("$OPENCODE_BIN" service status 2>/dev/null | head -1 | tr -d '\r' || true)
   if [ -n "$svc" ] && curl -fsS --max-time 1 "$svc" >/dev/null 2>&1; then
-    echo "$svc"
+    pair=$("$OPENCODE_BIN" pair 2>/dev/null | grep -oE 'http://[^ ]+/auth/connect/[^ ]+' | head -1 || true)
+    if [ -n "$pair" ]; then
+      echo "$pair"
+    else
+      echo "$svc"
+    fi
     return 0
   fi
 
