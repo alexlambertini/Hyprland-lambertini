@@ -95,6 +95,7 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 
 - `SUPER + D` — launcher (Rofi drun)
 - `SUPER + RETURN` — terminal (kitty, configurado no lua)
+- `SUPER + A` — abrir/fechar **OpenCode Assistente** (painel lateral/scratchpad)
 - `SUPER + Q` — fechar janela
 - `SUPER + V` — flutuar/tiling + centralizar
 - `SUPER + ←/→` — workspaces anterior/próximo (áreas de trabalho)
@@ -107,6 +108,7 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 
 ## Waybar: módulos e toggles
 
+- **OpenCode Assistente** (`custom/opencode`): botão na barra para abrir/fechar o painel lateral do OpenCode (também via `SUPER + A`).
 - **Clima** (`custom/weather`): temperatura automática — clique para **ocultar/mostrar**.
 - **Teclado** (`custom/kblayout`): layout ativo — clique para ocultar/mostrar.
 - **Tráfego de rede** (`custom/netspeed`): ↓/↑ na interface — clique para ocultar/mostrar.
@@ -134,6 +136,11 @@ Widgets ocultos ficam como **ícone apagado** (clicável) para reexibir. Estado 
 
 - `dunst` exibe notificações com o tema customizado.
 - `~/.config/hypr/scripts/music-notify.sh` detecta trocas de faixa via `playerctl --follow metadata` (MPRIS) e envia notificação “♪ título / artista — álbum”. Players sem MPRIS podem não disparar aviso automático.
+
+## OpenCode Assistente (lateral)
+
+- **`SUPER + A`** ou botão **`custom/opencode`** na Waybar: executa `~/.config/hypr/scripts/toggle-opencode.sh` para abrir/fechar o OpenCode em `kitty` (classe `opencode-assist`) no *special workspace* `special:opencode` (painel flutuante lateral).
+- Requer `opencode` instalado e disponível no `PATH` (ex.: `~/.opencode/bin/opencode`).
 
 ## Aplicativos padrão (opcional)
 

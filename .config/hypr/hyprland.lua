@@ -328,9 +328,8 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + SHIFT + " .. key,     hl.dsp.window.move({ workspace = i }))
 end
 
--- Example special workspace (scratchpad)
--- hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
--- hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
+-- OpenCode como assistente lateral (scratchpad)
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-opencode.sh"))
 
 -- Scroll through existing workspaces with mainMod + scroll
 -- hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
@@ -428,4 +427,14 @@ hl.window_rule({
 
     move  = "20 monitor_h-120",
     float = true,
+})
+
+-- OpenCode assistente lateral (special workspace)
+hl.window_rule({
+    name  = "opencode-assist",
+    match = { class = "opencode-assist" },
+    workspace = "special:opencode",
+    float  = true,
+    size   = "38% 94%",
+    move   = "61% 3%",
 })

@@ -111,6 +111,7 @@ button:hover {
 #custom-idle-indicator,
 #custom-notification-silencing-indicator,
 #custom-omarchy,
+#custom-opencode,
 #custom-weather,
 #custom-kblayout,
 #custom-netspeed,
@@ -133,6 +134,12 @@ opacity: 1;
 color: #cccccc;
 padding: 0px 2px 0 6px;
 margin: 0px;
+}
+
+#custom-opencode {
+opacity: 1;
+color: #cccccc;
+padding: 0 4px;
 }
 
 

@@ -9,6 +9,8 @@
   "modules-left": [
     "custom/omarchy",
     "custom/separator",
+    "custom/opencode",
+    "custom/separator",
     "hyprland/workspaces" 
   ],
   "modules-center": [
@@ -342,6 +344,12 @@
     "signal": 12,
     "on-click": "~/.config/waybar/mic-action.sh",
     "on-click-right": "~/.config/waybar/widget-toggle.sh mic 12"
+  },
+  "custom/opencode": {
+    "format": "󰚩",
+    "tooltip": true,
+    "tooltip-format": "OpenCode Assistente (clique para abrir/fechar)\nAtalho: SUPER + A",
+    "on-click": "~/.config/hypr/scripts/toggle-opencode.sh"
   }
   
 }
