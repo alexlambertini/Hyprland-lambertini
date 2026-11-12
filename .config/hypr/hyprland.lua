@@ -363,6 +363,9 @@ hl.bind("SUPER + CTRL + Down",
     hl.dsp.window.resize({ x = 0, y = 50, relative = true }),
     { repeating = true })
 
+-- Captura de tela (região): SUPER + SHIFT + S
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot-region.sh"))
+
 -- Laptop multimedia keys for volume and LCD brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })

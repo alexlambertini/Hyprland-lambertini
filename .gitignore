@@ -1,6 +1,5 @@
 # Caches/estado runtime
 .config/waybar/.netspeed-cache
-.config/hypr/current-wallpaper
 
 # Backups locais
 *.bak

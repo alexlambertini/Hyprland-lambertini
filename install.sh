@@ -26,10 +26,20 @@ mkdir -p "$HOME/.config/waybar"
 cp -rf "$REPO_DIR/.config/waybar/." "$HOME/.config/waybar/"
 
 # Hyprland
-mkdir -p "$HOME/.config/hypr/scripts"
+mkdir -p "$HOME/.config/hypr/scripts" "$HOME/Pictures/Wallpapers" "$HOME/Pictures/Screenshots"
 backup_if_exists "$HOME/.config/hypr/hyprland.lua"
 cp -f "$REPO_DIR/.config/hypr/hyprland.lua" "$HOME/.config/hypr/hyprland.lua"
 cp -f "$REPO_DIR/.config/hypr/scripts/music-notify.sh" "$HOME/.config/hypr/scripts/music-notify.sh"
+if [ -f "$REPO_DIR/.config/hypr/scripts/screenshot-region.sh" ]; then
+  cp -f "$REPO_DIR/.config/hypr/scripts/screenshot-region.sh" "$HOME/.config/hypr/scripts/screenshot-region.sh"
+fi
+# Wallpapers + wallpaper padrão
+if [ -d "$REPO_DIR/wallpapers" ]; then
+  cp -f "$REPO_DIR/wallpapers/"* "$HOME/Pictures/Wallpapers/" 2>/dev/null || true
+fi
+if [ ! -f "$HOME/.config/hypr/current-wallpaper" ]; then
+  echo "$HOME/Pictures/Wallpapers/gargantua-black-3840x2160-9621.jpg" > "$HOME/.config/hypr/current-wallpaper"
+fi
 
 # Rofi
 backup_if_exists "$HOME/.config/rofi"
@@ -47,7 +57,7 @@ cp -f "$REPO_DIR/bin/hypr-wallpaper-menu" "$HOME/bin/hypr-wallpaper-menu"
 cp -f "$REPO_DIR/.local/share/applications/hypr-wallpaper.desktop" "$HOME/.local/share/applications/hypr-wallpaper.desktop"
 
 # Permissões
-chmod +x "$HOME/.config/waybar/"*.sh "$HOME/.config/hypr/scripts/music-notify.sh" "$HOME/bin/hypr-wallpaper-menu"
+chmod +x "$HOME/.config/waybar/"*.sh "$HOME/.config/hypr/scripts/"*.sh "$HOME/bin/hypr-wallpaper-menu" 2>/dev/null || true
 
 echo "== Concluído =="
 echo "- Recarregue o Hyprland: hyprctl reload"
