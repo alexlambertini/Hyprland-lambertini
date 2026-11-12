@@ -42,6 +42,7 @@ sudo dnf install -y \
   NetworkManager \
   brightnessctl \
   nautilus \
+  papirus-icon-theme \
   kitty
 ```
 
@@ -55,7 +56,7 @@ sudo dnf install -y \
 - **Mídia:** `playerctl` (controles/MPRIS e notificação de faixa), `mpv` (vídeo), `audacious` (música).
 - **Áudio:** `pipewire`, `pipewire-pulseaudio`, `wireplumber`, `wpctl` (volume/microfone).
 - **Rede:** `NetworkManager` (`nmcli`/interface e tráfego).
-- **Outros:** `brightnessctl` (brilho, se houver backlight), `nautilus` (gerenciador de arquivos GTK, tema aplicado, padrão em `SUPER+E`), `kitty` (terminal padrão do atalho).
+- **Outros:** `brightnessctl` (brilho, se houver backlight), `nautilus` (gerenciador de arquivos GTK, tema aplicado, padrão em `SUPER+E`), `papirus-icon-theme` (ícones Papirus Dark), `kitty` (terminal padrão do atalho).
 - **Opcional:** `blueman`/`bluez` (Bluetooth), `wttrbar` (alternativa de clima), `power-profiles-daemon` **ou** `tuned`+`tuned-ppd` (perfis de energia), `qt6ct`/`kvantum` (para aproximar tema em apps Qt como Dolphin), fontes Nerd Font (ex.: JetBrains Mono Nerd Font).
 
 > Notas: clima usa `wttr.in` (internet). `lm_sensors` pode precisar de `sudo sensors-detect`. O tema base V7.2 tinha dependências de Omarchy; aqui há fallbacks e alguns módulos Omarchy podem não funcionar sem Omarchy. A tematização GTK aplica-se a apps GTK (ex.: Nautilus); apps Qt (ex.: Dolphin) podem exigir configuração Qt separada.
@@ -151,5 +152,5 @@ xdg-mime default mpv.desktop video/mp4 video/x-matroska video/webm
 
 - Monitores e teclado estão configurados no `hyprland.lua` (ex.: `HDMI-A-1`/`DVI-D-1`, layout `br abnt2`) — ajuste para seu hardware.
 - Gaps: `general.gaps_in/gaps_out` no `hyprland.lua`.
-- **Navegador de arquivos:** o tema GTK (`.config/gtk-3.0/gtk-4.0`) aproxima as cores para apps GTK (ex.: **Nautilus**). O atalho `SUPER + E` no config abre **Dolphin** (Qt), que pode exigir `qt6ct`/Kvantum ou esquema de cores KDE para ficar igual; se preferir, troque o bind para `nautilus`.
+- **Navegador de arquivos:** `SUPER + E` abre o **Nautilus** (GTK), que usa o tema GTK incluído (`.config/gtk-3.0/gtk-4.0`) para combinar com o visual. Se preferir Dolphin (Qt), será necessário configurar `qt6ct`/Kvantum e ajustar `fileManager` no `hyprland.lua`.
 - Não inclua arquivos de cache/estado pessoal sensível ao versionar; este repositório inclui estados `.enabled` padrão para os widgets.
