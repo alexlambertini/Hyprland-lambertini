@@ -43,7 +43,8 @@ sudo dnf install -y \
   brightnessctl \
   nautilus \
   papirus-icon-theme \
-  kitty
+  kitty \
+  chromium
 ```
 
 **Para que serve cada grupo:**

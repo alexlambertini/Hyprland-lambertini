@@ -4,8 +4,6 @@
 set -euo pipefail
 
 CLASS="opencode-web"
-PORT="${OPENCODE_WEB_PORT:-4096}"
-URL="http://127.0.0.1:${PORT}/"
 OPENCODE_BIN="$HOME/.opencode/bin/opencode"
 CHROMIUM_BIN="${CHROMIUM_BIN:-$(command -v chromium-browser || command -v chromium || echo chromium-browser)}"
 SOCK="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket.sock"
@@ -28,18 +26,38 @@ if [ -n "$ADDR" ]; then
   exit 0
 fi
 
-# Garante servidor OpenCode web
-if ! curl -fsS --max-time 1 "$URL" >/dev/null 2>&1; then
+resolve_url() {
+  # 1) serviço em execução do OpenCode (sem senha adicional)
+  local svc
+  svc=$("$OPENCODE_BIN" service status 2>/dev/null | head -1 | tr -d '\r' || true)
+  if [ -n "$svc" ] && curl -fsS --max-time 1 "$svc" >/dev/null 2>&1; then
+    echo "$svc"
+    return 0
+  fi
+
+  # 2) porta padrão local já ativa
+  if curl -fsS --max-time 1 "http://127.0.0.1:4096/" >/dev/null 2>&1; then
+    echo "http://127.0.0.1:4096/"
+    return 0
+  fi
+
+  # 3) inicia servidor local
   if [ -x "$OPENCODE_BIN" ]; then
-    nohup "$OPENCODE_BIN" serve --hostname 127.0.0.1 --port "$PORT" >/tmp/opencode-serve.log 2>&1 &
+    nohup "$OPENCODE_BIN" serve --hostname 127.0.0.1 --port 4096 >/tmp/opencode-serve.log 2>&1 &
   else
-    nohup opencode serve --hostname 127.0.0.1 --port "$PORT" >/tmp/opencode-serve.log 2>&1 &
+    nohup opencode serve --hostname 127.0.0.1 --port 4096 >/tmp/opencode-serve.log 2>&1 &
   fi
   for i in 1 2 3 4 5 6 7 8 9 10; do
-    curl -fsS --max-time 1 "$URL" >/dev/null 2>&1 && break
+    if curl -fsS --max-time 1 "http://127.0.0.1:4096/" >/dev/null 2>&1; then
+      echo "http://127.0.0.1:4096/"
+      return 0
+    fi
     sleep 0.4
   done
-fi
+  echo "http://127.0.0.1:4096/"
+}
+
+URL="$(resolve_url)"
 
 # Se houver janelas, divide à direita; se vazio, ocupa 100% naturalmente
 OTHER=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.windows // 0' 2>/dev/null || echo 0)
