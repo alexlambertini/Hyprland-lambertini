@@ -80,7 +80,7 @@ if [ -f "$REPO_DIR/.local/share/applications/hypr-resolution.desktop" ]; then
 fi
 
 # Permissões
-chmod +x "$HOME/.config/waybar/"*.sh "$HOME/.config/hypr/scripts/"*.sh "$HOME/bin/hypr-wallpaper-menu" 2>/dev/null || true
+chmod +x "$HOME/.config/waybar/"*.sh "$HOME/.config/hypr/scripts/"*.sh "$HOME/bin/hypr-wallpaper-menu" "$HOME/bin/hypr-resolution-menu" 2>/dev/null || true
 
 echo "== Concluído =="
 echo "- Recarregue o Hyprland: hyprctl reload"

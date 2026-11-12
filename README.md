@@ -55,7 +55,7 @@ sudo dnf install -y \
 - **Mídia:** `playerctl` (controles/MPRIS e notificação de faixa), `mpv` (vídeo), `audacious` (música).
 - **Áudio:** `pipewire`, `pipewire-pulseaudio`, `wireplumber`, `wpctl` (volume/microfone).
 - **Rede:** `NetworkManager` (`nmcli`/interface e tráfego).
-- **Outros:** `brightnessctl` (brilho, se houver backlight), `nautilus` (gerenciador de arquivos GTK, tema aplicado), `kitty` (terminal padrão do atalho).
+- **Outros:** `brightnessctl` (brilho, se houver backlight), `nautilus` (gerenciador de arquivos GTK, tema aplicado, padrão em `SUPER+E`), `kitty` (terminal padrão do atalho).
 - **Opcional:** `blueman`/`bluez` (Bluetooth), `wttrbar` (alternativa de clima), `power-profiles-daemon` **ou** `tuned`+`tuned-ppd` (perfis de energia), `qt6ct`/`kvantum` (para aproximar tema em apps Qt como Dolphin), fontes Nerd Font (ex.: JetBrains Mono Nerd Font).
 
 > Notas: clima usa `wttr.in` (internet). `lm_sensors` pode precisar de `sudo sensors-detect`. O tema base V7.2 tinha dependências de Omarchy; aqui há fallbacks e alguns módulos Omarchy podem não funcionar sem Omarchy. A tematização GTK aplica-se a apps GTK (ex.: Nautilus); apps Qt (ex.: Dolphin) podem exigir configuração Qt separada.
