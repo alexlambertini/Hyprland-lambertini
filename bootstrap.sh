@@ -23,7 +23,7 @@ install_deps_fedora() {
   echo "Instalando dependências (Fedora/dnf)..."
   sudo dnf install -y waybar rofi dunst jq curl lm_sensors mpv audacious playerctl \
     wl-clipboard swaybg wofi grim slurp brightnessctl \
-    nautilus papirus-icon-theme kitty git
+    nautilus papirus-icon-theme kitty chromium git
 }
 
 if [ -f /etc/fedora-release ] || command -v dnf >/dev/null 2>&1; then

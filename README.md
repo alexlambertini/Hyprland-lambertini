@@ -139,9 +139,9 @@ Widgets ocultos ficam como **ícone apagado** (clicável) para reexibir. Estado 
 
 ## OpenCode Assistente (lateral, Web UI)
 
-- **`SUPER + A`** ou botão **`custom/opencode`** na Waybar: executa `~/.config/hypr/scripts/opencode-web-panel.sh` para abrir/fechar a **Web UI do OpenCode** (`opencode serve`) em uma janela dedicada do Firefox (classe `opencode-web`) como painel lateral **lado a lado** (tiled), dividindo a tela.
+- **`SUPER + A`** ou botão **`custom/opencode`** na Waybar: executa `~/.config/hypr/scripts/opencode-web-panel.sh` para abrir/fechar a **Web UI do OpenCode** (`opencode serve`) em uma janela dedicada do **Chromium** (modo `--app`, classe `opencode-web`) como painel lateral **lado a lado** (tiled), dividindo a tela.
 - Se a workspace não tiver outras janelas, o painel abre ocupando **100%** do espaço; se houver janelas, abre à direita dividindo a tela.
-- O script inicia `opencode serve` em `127.0.0.1:4096` (se necessário) e abre `http://127.0.0.1:4096/`. Requer `opencode`, `firefox`, `curl`, `jq` e `nc`.
+- O script inicia `opencode serve` em `127.0.0.1:4096` (se necessário) e abre `http://127.0.0.1:4096/`. Requer `opencode`, `chromium`, `curl`, `jq` e `nc`.
 
 ## Aplicativos padrão (opcional)
 

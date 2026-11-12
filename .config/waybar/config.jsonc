@@ -351,7 +351,7 @@
     "interval": 30,
     "exec": "~/.config/waybar/opencode.sh",
     "return-type": "json",
-    "on-click": "~/.config/hypr/scripts/toggle-opencode.sh"
+    "on-click": "~/.config/hypr/scripts/opencode-web-panel.sh"
   }
   
 }

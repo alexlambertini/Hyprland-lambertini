@@ -16,7 +16,7 @@ echo "== Instalando configurações do hypr-waybar-theme =="
 
 # Dependências (Fedora) - instale antes se necessário:
 # sudo dnf install -y waybar rofi dunst jq curl lm_sensors mpv audacious playerctl \
-#   wl-clipboard swaybg wofi grim slurp brightnessctl git nautilus papirus-icon-theme kitty
+#   wl-clipboard swaybg wofi grim slurp brightnessctl git nautilus papirus-icon-theme kitty chromium
 # Opcionais: wttrbar, blueman, power-profiles-daemon ou tuned-ppd, qt6ct/kvantum (Qt)
 
 mkdir -p "$HOME/.config" "$HOME/bin" "$HOME/.local/share/applications"
