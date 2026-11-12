@@ -82,6 +82,11 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("pkill -f 'music-notify.sh' 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &")
 end)
 
+-- Waybar
+hl.on("hyprland.start", function ()
+    hl.exec_cmd("pkill -x waybar 2>/dev/null; sleep 0.2; env LANG=pt_BR.UTF-8 LC_TIME=pt_BR.UTF-8 LC_ALL=pt_BR.UTF-8 waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css &")
+end)
+
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----
@@ -91,6 +96,8 @@ end)
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("XCURSOR_THEME", "Adwaita")
+hl.env("HYPRCURSOR_THEME", "Adwaita")
 
 
 -----------------------
