@@ -1,5 +1,5 @@
 configuration {
-    modi: "combi,drun,run,window,filebrowser,calc:~/.config/rofi/scripts/rofi-calc.sh";
+    modi: "combi,drun,run,window,filebrowser,calc:/home/lambertini/.config/rofi/scripts/rofi-calc.sh";
     combi-modes: "drun,run,window";
     show-icons: true;
     display-drun: "󰀻 Apps";
