@@ -481,10 +481,10 @@ hl.window_rule({
     center = true,
 })
 
--- Painel de atalhos personalizados (flutuante)
+-- Painel de atalhos do sistema (flutuante)
 hl.window_rule({
     name   = "hypr-binds-config",
-    match  = { title = "^Atalhos Personalizados$" },
+    match  = { title = "^Atalhos do Sistema$" },
     float  = true,
     center = true,
 })
