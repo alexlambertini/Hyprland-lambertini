@@ -1,5 +1,5 @@
 #!/bin/bash
-# Painel simples para configurar inatividade (hypridle): bloqueio + apagar tela
+# Painel para configurar inatividade (hypridle): bloqueio + apagar tela
 set -euo pipefail
 
 CONF="$HOME/.config/hypr/hypridle.conf"
@@ -10,28 +10,15 @@ current_min() {
   fi
 }
 
-MIN=$(current_min)
-MIN=${MIN:-15}
-[[ "$MIN" =~ ^[0-9]+$ ]] || MIN=15
+is_enabled() {
+  [ -f "$CONF" ] && grep -q '^[[:space:]]*timeout[[:space:]]*=' "$CONF"
+}
 
-if ! command -v zenity >/dev/null 2>&1; then
-  notify-send "Inatividade" "zenity não encontrado para o painel de configuração." 2>/dev/null || true
-  exit 1
-fi
-
-VAL=$(zenity --forms --title="Inatividade (bloqueio e tela)" \
-  --text="Defina o tempo de inatividade.\nAo atingir o tempo: bloqueia a sessão e apaga a tela (sem suspender)." \
-  --add-entry="Minutos para bloquear/apagar (0 = desativar):" \
-  --separator="|" \
-  --width=420 2>/dev/null) || exit 0
-
-VAL=$(printf '%s' "$VAL" | tr -dc '0-9')
-[ -z "$VAL" ] && exit 0
-
-mkdir -p "$(dirname "$CONF")"
-
-if [ "$VAL" -eq 0 ] 2>/dev/null; then
-  cat > "$CONF" <<'EOF'
+apply_config() {
+  local val="$1"
+  mkdir -p "$(dirname "$CONF")"
+  if [ "$val" -eq 0 ] 2>/dev/null; then
+    cat > "$CONF" <<'EOF'
 general {
     lock_cmd = pidof hyprlock || hyprlock
     before_sleep_cmd = loginctl lock-session
@@ -39,35 +26,79 @@ general {
 }
 # Inatividade desativada (nenhum listener)
 EOF
-  pkill -x hypridle 2>/dev/null || true
-  zenity --info --title="Inatividade" --text="Bloqueio/apagar tela por inatividade desativado." --width=360 2>/dev/null || true
-  exit 0
-fi
-
-SEC=$((VAL * 60))
-
-cat > "$CONF" <<EOF
+    pkill -x hypridle 2>/dev/null || true
+    zenity --info --title="Inatividade e Bloqueio" --width=380 \
+      --text="Bloqueio/apagar tela por inatividade desativado." 2>/dev/null || true
+    return 0
+  fi
+  local sec=$((val * 60))
+  cat > "$CONF" <<EOF
 general {
     lock_cmd = pidof hyprlock || hyprlock
     before_sleep_cmd = loginctl lock-session
     after_sleep_cmd = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
 }
 
-# Bloqueia e apaga a tela após ${VAL} minutos de inatividade (sem suspender)
+# Bloqueia e apaga a tela após ${val} minutos de inatividade (sem suspender)
 listener {
-    timeout = ${SEC}
+    timeout = ${sec}
     on-timeout = loginctl lock-session
 }
 
 listener {
-    timeout = ${SEC}
+    timeout = ${sec}
     on-timeout = hyprctl dispatch 'hl.dsp.dpms({action = "off"})'
     on-resume = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
 }
 EOF
+  pkill -x hypridle 2>/dev/null || true
+  sleep 0.2
+  hypridle >/dev/null 2>&1 & disown
+  zenity --info --title="Inatividade e Bloqueio" --width=380 \
+    --text="Configurado: bloquear e apagar tela após ${val} minuto(s)." 2>/dev/null || true
+}
 
-pkill -x hypridle 2>/dev/null || true
-sleep 0.2
-hypridle >/dev/null 2>&1 & disown
+if ! command -v zenity >/dev/null 2>&1; then
+  notify-send "Inatividade" "zenity não encontrado para o painel de configuração." 2>/dev/null || true
+  exit 1
+fi
 
-zenity --info --title="Inatividade" --text="Configurado: bloquear e apagar tela após ${VAL} minuto(s)." --width=360 2>/dev/null || true
+MIN=$(current_min)
+MIN=${MIN:-15}
+[[ "$MIN" =~ ^[0-9]+$ ]] || MIN=15
+
+if is_enabled; then
+  STATUS="Ativo: ${MIN} minuto(s)"
+  CURRENT_TEXT="Tempo atual: bloquear e apagar a tela após ${MIN} minuto(s) de inatividade."
+else
+  STATUS="Desativado"
+  CURRENT_TEXT="Atualmente desativado (sem bloqueio/apagar tela por inatividade)."
+fi
+
+CHOICE=$(zenity --list --title="Inatividade e Bloqueio" \
+  --width=480 --height=260 \
+  --text="${CURRENT_TEXT}\n\nEscolha uma ação:" \
+  --column="Ação" --hide-header \
+  "Alterar tempo" \
+  "Desativar" 2>/dev/null) || exit 0
+
+case "$CHOICE" in
+  "Alterar tempo")
+    if ! is_enabled; then
+      MIN=15
+    fi
+    NEW_MIN=$(zenity --scale --title="Tempo de inatividade" \
+      --width=420 \
+      --text="Minutos para bloquear e apagar a tela:" \
+      --min-value=1 --max-value=120 --value="$MIN" --step=1 2>/dev/null) || exit 0
+    NEW_MIN=$(printf '%s' "$NEW_MIN" | tr -dc '0-9')
+    [ -z "$NEW_MIN" ] && exit 0
+    apply_config "$NEW_MIN"
+    ;;
+  "Desativar")
+    apply_config 0
+    ;;
+  *)
+    exit 0
+    ;;
+esac
