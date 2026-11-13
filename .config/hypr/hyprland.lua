@@ -87,6 +87,12 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("pkill -x waybar 2>/dev/null; sleep 0.2; env LANG=pt_BR.UTF-8 LC_TIME=pt_BR.UTF-8 LC_ALL=pt_BR.UTF-8 waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css &")
 end)
 
+-- Histórico da área de transferência (cliphist)
+hl.on("hyprland.start", function ()
+    hl.exec_cmd("wl-paste --type text --watch cliphist store &")
+    hl.exec_cmd("wl-paste --type image --watch cliphist store &")
+end)
+
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----
@@ -343,6 +349,9 @@ hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/scripts/opencode-web-
 -- Menu de energia (Desligar / Reiniciar / Suspender / Sair / Bloquear)
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("~/.config/waybar/power-menu.sh"))
 
+-- Bloquear tela
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+
 -- Scroll through existing workspaces with mainMod + scroll
 -- hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 -- hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
@@ -376,6 +385,9 @@ hl.bind("SUPER + CTRL + Down",
 
 -- Captura de tela (região): SUPER + SHIFT + S
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot-region.sh"))
+
+-- Histórico da área de transferência (cliphist)
+hl.bind("SUPER + SHIFT + V", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard-menu.sh"))
 
 -- Laptop multimedia keys for volume and LCD brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
