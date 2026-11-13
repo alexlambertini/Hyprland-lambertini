@@ -489,5 +489,20 @@ hl.window_rule({
     center = true,
 })
 
+-- Widget Conky (monitor de sistema na área de trabalho)
+hl.window_rule({
+    name     = "conky-monitor",
+    match    = { class = "^conky-monitor$" },
+    float    = true,
+    pin      = true,
+    no_focus = true,
+    border_size = 0,
+})
+
+-- Widget Conky (monitor de sistema)
+hl.on("hyprland.start", function ()
+    hl.exec_cmd("pkill -x conky 2>/dev/null; conky -c ~/.config/conky/conky.conf &")
+end)
+
 -- Atalhos personalizados (gerenciados pelo painel "Atalhos Personalizados")
 dofile(os.getenv("HOME") .. "/.config/hypr/custom-binds.lua")
