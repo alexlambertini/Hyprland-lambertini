@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Inatividade e Bloqueio
+Comment=Configurar tempo para bloquear e apagar a tela (hypridle)
+Exec=/home/lambertini/.local/bin/hypridle-config
+Icon=preferences-system-time
+Terminal=false
+Categories=Settings;System;
+Keywords=idle;lock;screen;bloqueio;tela;inatividade;hypridle;

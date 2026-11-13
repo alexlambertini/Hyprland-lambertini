@@ -93,6 +93,11 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("wl-paste --type image --watch cliphist store &")
 end)
 
+-- Bloqueio e inatividade (hypridle)
+hl.on("hyprland.start", function ()
+    hl.exec_cmd("pkill -x hypridle 2>/dev/null; hypridle &")
+end)
+
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----

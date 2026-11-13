@@ -1,0 +1,73 @@
+#!/bin/bash
+# Painel simples para configurar inatividade (hypridle): bloqueio + apagar tela
+set -euo pipefail
+
+CONF="$HOME/.config/hypr/hypridle.conf"
+
+current_min() {
+  if [ -f "$CONF" ]; then
+    awk '/^[[:space:]]*timeout[[:space:]]*=/{gsub(/[^0-9]/,"",$3?$3:$2); if($0~/[0-9]/){for(i=1;i<=NF;i++) if($i ~ /^[0-9]+$/){print int($i/60); exit}}}' "$CONF" 2>/dev/null | head -1
+  fi
+}
+
+MIN=$(current_min)
+MIN=${MIN:-15}
+[[ "$MIN" =~ ^[0-9]+$ ]] || MIN=15
+
+if ! command -v zenity >/dev/null 2>&1; then
+  notify-send "Inatividade" "zenity não encontrado para o painel de configuração." 2>/dev/null || true
+  exit 1
+fi
+
+VAL=$(zenity --forms --title="Inatividade (bloqueio e tela)" \
+  --text="Defina o tempo de inatividade.\nAo atingir o tempo: bloqueia a sessão e apaga a tela (sem suspender)." \
+  --add-entry="Minutos para bloquear/apagar (0 = desativar):" \
+  --separator="|" \
+  --width=420 2>/dev/null) || exit 0
+
+VAL=$(printf '%s' "$VAL" | tr -dc '0-9')
+[ -z "$VAL" ] && exit 0
+
+mkdir -p "$(dirname "$CONF")"
+
+if [ "$VAL" -eq 0 ] 2>/dev/null; then
+  cat > "$CONF" <<'EOF'
+general {
+    lock_cmd = pidof hyprlock || hyprlock
+    before_sleep_cmd = loginctl lock-session
+    after_sleep_cmd = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
+}
+# Inatividade desativada (nenhum listener)
+EOF
+  pkill -x hypridle 2>/dev/null || true
+  zenity --info --title="Inatividade" --text="Bloqueio/apagar tela por inatividade desativado." --width=360 2>/dev/null || true
+  exit 0
+fi
+
+SEC=$((VAL * 60))
+
+cat > "$CONF" <<EOF
+general {
+    lock_cmd = pidof hyprlock || hyprlock
+    before_sleep_cmd = loginctl lock-session
+    after_sleep_cmd = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
+}
+
+# Bloqueia e apaga a tela após ${VAL} minutos de inatividade (sem suspender)
+listener {
+    timeout = ${SEC}
+    on-timeout = loginctl lock-session
+}
+
+listener {
+    timeout = ${SEC}
+    on-timeout = hyprctl dispatch 'hl.dsp.dpms({action = "off"})'
+    on-resume = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
+}
+EOF
+
+pkill -x hypridle 2>/dev/null || true
+sleep 0.2
+hypridle >/dev/null 2>&1 & disown
+
+zenity --info --title="Inatividade" --text="Configurado: bloquear e apagar tela após ${VAL} minuto(s)." --width=360 2>/dev/null || true
