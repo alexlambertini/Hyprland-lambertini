@@ -16,8 +16,8 @@
   {
     "mods": "CTRL SHIFT",
     "key": "M",
-    "command": "pkill -x conky",
-    "description": "Desligar todos os widgets",
+    "command": "/home/lambertini/.local/bin/conky-toggle",
+    "description": "Ligar/desligar widgets (Conky)",
     "enabled": true
   }
 ]
