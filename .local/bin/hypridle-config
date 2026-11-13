@@ -1,104 +1,226 @@
-#!/bin/bash
-# Painel para configurar inatividade (hypridle): bloqueio + apagar tela
-set -euo pipefail
+#!/usr/bin/env python3
+import os
+import re
+import signal
+import subprocess
+import sys
 
-CONF="$HOME/.config/hypr/hypridle.conf"
+os.environ.setdefault("GTK_THEME", "Adwaita:dark")
 
-current_min() {
-  if [ -f "$CONF" ]; then
-    awk '/^[[:space:]]*timeout[[:space:]]*=/{for(i=1;i<=NF;i++){gsub(/[^0-9]/,"",$i); if($i!=""){print int($i/60); exit}}}' "$CONF" 2>/dev/null | head -1
-  fi
-}
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
 
-is_enabled() {
-  [ -f "$CONF" ] && grep -q '^[[:space:]]*timeout[[:space:]]*=' "$CONF"
-}
+CONF = os.path.expanduser("~/.config/hypr/hypridle.conf")
 
-apply_config() {
-  local val="$1"
-  mkdir -p "$(dirname "$CONF")"
-  if [ "$val" -eq 0 ] 2>/dev/null; then
-    cat > "$CONF" <<'EOF'
-general {
+
+def read_timeout_minutes():
+    if not os.path.isfile(CONF):
+        return None
+    try:
+        with open(CONF, "r", encoding="utf-8") as f:
+            data = f.read()
+    except Exception:
+        return None
+    if "timeout" not in data:
+        return None
+    m = re.search(r"^\s*timeout\s*=\s*(\d+)", data, re.MULTILINE)
+    if not m:
+        return None
+    try:
+        return max(1, int(m.group(1)) // 60)
+    except Exception:
+        return None
+
+
+def write_config(minutes):
+    os.makedirs(os.path.dirname(CONF), exist_ok=True)
+    if minutes <= 0:
+        content = """general {
     lock_cmd = pidof hyprlock || hyprlock
     before_sleep_cmd = loginctl lock-session
     after_sleep_cmd = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
 }
 # Inatividade desativada (nenhum listener)
-EOF
-    pkill -x hypridle 2>/dev/null || true
-    zenity --info --title="Inatividade e Bloqueio" --width=380 \
-      --text="Bloqueio/apagar tela por inatividade desativado." 2>/dev/null || true
-    return 0
-  fi
-  local sec=$((val * 60))
-  cat > "$CONF" <<EOF
-general {
+"""
+    else:
+        sec = minutes * 60
+        content = f"""general {{
     lock_cmd = pidof hyprlock || hyprlock
     before_sleep_cmd = loginctl lock-session
-    after_sleep_cmd = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
-}
+    after_sleep_cmd = hyprctl dispatch 'hl.dsp.dpms({{action = "on"}})'
+}}
 
-# Bloqueia e apaga a tela após ${val} minutos de inatividade (sem suspender)
-listener {
-    timeout = ${sec}
+# Bloqueia e apaga a tela após {minutes} minutos de inatividade (sem suspender)
+listener {{
+    timeout = {sec}
     on-timeout = loginctl lock-session
-}
+}}
 
-listener {
-    timeout = ${sec}
-    on-timeout = hyprctl dispatch 'hl.dsp.dpms({action = "off"})'
-    on-resume = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
-}
-EOF
-  pkill -x hypridle 2>/dev/null || true
-  sleep 0.2
-  hypridle >/dev/null 2>&1 & disown
-  zenity --info --title="Inatividade e Bloqueio" --width=380 \
-    --text="Configurado: bloquear e apagar tela após ${val} minuto(s)." 2>/dev/null || true
-}
+listener {{
+    timeout = {sec}
+    on-timeout = hyprctl dispatch 'hl.dsp.dpms({{action = "off"}})'
+    on-resume = hyprctl dispatch 'hl.dsp.dpms({{action = "on"}})'
+}}
+"""
+    with open(CONF, "w", encoding="utf-8") as f:
+        f.write(content)
 
-if ! command -v zenity >/dev/null 2>&1; then
-  notify-send "Inatividade" "zenity não encontrado para o painel de configuração." 2>/dev/null || true
-  exit 1
-fi
 
-MIN=$(current_min)
-MIN=${MIN:-15}
-[[ "$MIN" =~ ^[0-9]+$ ]] || MIN=15
+def restart_hypridle(enable):
+    subprocess.run(["pkill", "-x", "hypridle"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if enable:
+        subprocess.Popen(["hypridle"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                         stdin=subprocess.DEVNULL, start_new_session=True)
 
-if is_enabled; then
-  STATUS="Ativo: ${MIN} minuto(s)"
-  CURRENT_TEXT="Tempo atual: bloquear e apagar a tela após ${MIN} minuto(s) de inatividade."
-else
-  STATUS="Desativado"
-  CURRENT_TEXT="Atualmente desativado (sem bloqueio/apagar tela por inatividade)."
-fi
 
-CHOICE=$(zenity --list --title="Inatividade e Bloqueio" \
-  --width=480 --height=260 \
-  --text="${CURRENT_TEXT}\n\nEscolha uma ação:" \
-  --column="Ação" --hide-header \
-  "Alterar tempo" \
-  "Desativar" 2>/dev/null) || exit 0
+CSS = b"""
+window, .background { background-color: #1e1e2e; color: #cccccc; }
+label { color: #cccccc; }
+label.title { font-size: 16px; font-weight: 700; color: #cccccc; }
+label.status { color: #df6124; font-weight: 600; }
+label.muted { color: #8a8a8a; }
+frame, .frame { border-color: #3a3a4a; }
+scale trough { background-color: #2a2a3a; border-radius: 8px; min-height: 8px; }
+scale highlight { background-color: #df6124; border-radius: 8px; }
+scale slider { background-color: #cccccc; border: 2px solid #df6124; border-radius: 10px; min-width: 18px; min-height: 18px; }
+button { background: #2a2a3a; color: #cccccc; border: 1px solid #3a3a4a; border-radius: 8px; padding: 6px 14px; }
+button:hover { background: #353548; border-color: #df6124; }
+button.suggested-action { background: #df6124; color: #1e1e2e; border-color: #df6124; font-weight: 700; }
+button.suggested-action:hover { background: #ff7a3a; }
+button.destructive-action { background: #3a2a2a; color: #f38ba8; border-color: #5a3a3a; }
+button.destructive-action:hover { background: #4a3030; }
+"""
 
-case "$CHOICE" in
-  "Alterar tempo")
-    if ! is_enabled; then
-      MIN=15
-    fi
-    NEW_MIN=$(zenity --scale --title="Tempo de inatividade" \
-      --width=420 \
-      --text="Minutos para bloquear e apagar a tela:" \
-      --min-value=1 --max-value=120 --value="$MIN" --step=1 2>/dev/null) || exit 0
-    NEW_MIN=$(printf '%s' "$NEW_MIN" | tr -dc '0-9')
-    [ -z "$NEW_MIN" ] && exit 0
-    apply_config "$NEW_MIN"
-    ;;
-  "Desativar")
-    apply_config 0
-    ;;
-  *)
-    exit 0
-    ;;
-esac
+
+class IdleConfigWindow(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Inatividade e Bloqueio")
+        self.set_default_size(460, 260)
+        self.set_border_width(18)
+        self.set_resizable(False)
+        self.set_position(Gtk.WindowPosition.CENTER)
+
+        provider = Gtk.CssProvider()
+        try:
+            provider.load_from_data(CSS)
+            Gtk.StyleContext.add_provider_for_screen(
+                Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
+        except Exception:
+            pass
+
+        outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        self.add(outer)
+
+        title = Gtk.Label(label="Inatividade e Bloqueio")
+        title.get_style_context().add_class("title")
+        title.set_halign(Gtk.Align.START)
+        outer.pack_start(title, False, False, 0)
+
+        subtitle = Gtk.Label(label="Bloqueia e apaga a tela após o tempo definido (sem suspender).")
+        subtitle.get_style_context().add_class("muted")
+        subtitle.set_halign(Gtk.Align.START)
+        subtitle.set_line_wrap(True)
+        outer.pack_start(subtitle, False, False, 0)
+
+        self.current_min = read_timeout_minutes()
+        self.enabled = self.current_min is not None
+
+        self.status = Gtk.Label()
+        self.status.get_style_context().add_class("status")
+        self.status.set_halign(Gtk.Align.START)
+        outer.pack_start(self.status, False, False, 4)
+
+        box_scale = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        outer.pack_start(box_scale, False, False, 6)
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        box_scale.pack_start(row, False, False, 0)
+        lbl = Gtk.Label(label="Tempo (minutos):")
+        lbl.set_halign(Gtk.Align.START)
+        row.pack_start(lbl, False, False, 0)
+        self.value_lbl = Gtk.Label()
+        self.value_lbl.set_halign(Gtk.Align.END)
+        row.pack_end(self.value_lbl, False, False, 0)
+
+        adj = Gtk.Adjustment(value=self.current_min if self.enabled else 15, lower=1, upper=120, step_increment=1, page_increment=5)
+        self.scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
+        self.scale.set_digits(0)
+        self.scale.set_draw_value(False)
+        self.scale.connect("value-changed", self.on_scale)
+        box_scale.pack_start(self.scale, False, False, 0)
+
+        marks = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        for t in ("1", "30", "60", "90", "120"):
+            m = Gtk.Label(label=t)
+            m.get_style_context().add_class("muted")
+            if t == "1":
+                m.set_halign(Gtk.Align.START)
+                marks.pack_start(m, True, True, 0)
+            elif t == "120":
+                m.set_halign(Gtk.Align.END)
+                marks.pack_end(m, True, True, 0)
+            else:
+                m.set_halign(Gtk.Align.CENTER)
+                marks.pack_start(m, True, True, 0)
+        box_scale.pack_start(marks, False, False, 0)
+
+        btns = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        btns.set_halign(Gtk.Align.END)
+        outer.pack_end(btns, False, False, 0)
+
+        close_btn = Gtk.Button(label="Fechar")
+        close_btn.connect("clicked", lambda *_: Gtk.main_quit())
+        btns.pack_start(close_btn, False, False, 0)
+
+        self.disable_btn = Gtk.Button(label="Desativar")
+        self.disable_btn.get_style_context().add_class("destructive-action")
+        self.disable_btn.connect("clicked", self.on_disable)
+        btns.pack_start(self.disable_btn, False, False, 0)
+
+        apply_btn = Gtk.Button(label="Aplicar")
+        apply_btn.get_style_context().add_class("suggested-action")
+        apply_btn.connect("clicked", self.on_apply)
+        btns.pack_start(apply_btn, False, False, 0)
+
+        self.refresh_status()
+        self.on_scale(self.scale)
+
+    def refresh_status(self):
+        if self.enabled and self.current_min:
+            self.status.set_text(f"Status atual: ativo ({self.current_min} min)")
+            self.disable_btn.set_sensitive(True)
+        else:
+            self.status.set_text("Status atual: desativado")
+            self.disable_btn.set_sensitive(False)
+
+    def on_scale(self, scale):
+        self.value_lbl.set_text(f"{int(scale.get_value())} min")
+
+    def on_apply(self, *_):
+        val = int(self.scale.get_value())
+        write_config(val)
+        restart_hypridle(True)
+        self.current_min = val
+        self.enabled = True
+        self.refresh_status()
+        self.status.set_text(f"Aplicado: ativo ({val} min)")
+
+    def on_disable(self, *_):
+        write_config(0)
+        restart_hypridle(False)
+        self.enabled = False
+        self.current_min = None
+        self.refresh_status()
+
+
+def main():
+    win = IdleConfigWindow()
+    win.connect("destroy", Gtk.main_quit)
+    win.show_all()
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()
