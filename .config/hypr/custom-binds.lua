@@ -1,0 +1,2 @@
+-- Atalhos personalizados (gerenciado por: hypr-binds-config / "Atalhos Personalizados")
+-- Edite pelo painel no drun para evitar erros de sintaxe.

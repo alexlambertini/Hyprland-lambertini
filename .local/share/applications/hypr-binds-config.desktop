@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Atalhos Personalizados
+Comment=Adicionar, editar e remover atalhos do Hyprland (custom-binds)
+Exec=/home/lambertini/.local/bin/hypr-binds-config
+Icon=preferences-desktop-keyboard-shortcuts
+Terminal=false
+Categories=Settings;System;
+Keywords=atalhos;binds;teclas;hyprland;keyboard;shortcuts;

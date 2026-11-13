@@ -472,3 +472,22 @@ hl.window_rule({
     float  = true,
     center = true,
 })
+
+-- Rofi (launcher/menus/calculadora) flutuante
+hl.window_rule({
+    name   = "rofi-float",
+    match  = { class = "^[Rr]ofi$" },
+    float  = true,
+    center = true,
+})
+
+-- Painel de atalhos personalizados (flutuante)
+hl.window_rule({
+    name   = "hypr-binds-config",
+    match  = { title = "^Atalhos Personalizados$" },
+    float  = true,
+    center = true,
+})
+
+-- Atalhos personalizados (gerenciados pelo painel "Atalhos Personalizados")
+dofile(os.getenv("HOME") .. "/.config/hypr/custom-binds.lua")
