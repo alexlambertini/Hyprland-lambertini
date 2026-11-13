@@ -491,11 +491,11 @@ hl.window_rule({
 
 -- Widget Conky (monitor de sistema na área de trabalho)
 hl.window_rule({
-    name     = "conky-monitor",
-    match    = { class = "^conky-monitor$" },
-    float    = true,
-    pin      = true,
-    no_focus = true,
+    name        = "conky-monitor",
+    match       = { class = "^conky-monitor$" },
+    float       = true,
+    pin         = true,
+    no_focus    = false,
     border_size = 0,
 })
 

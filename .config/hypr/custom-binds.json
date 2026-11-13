@@ -5,5 +5,19 @@
     "command": "/home/lambertini/.local/bin/hypr-binds-config",
     "description": "Abrir Atalhos Personalizados",
     "enabled": true
+  },
+  {
+    "mods": "ALT",
+    "key": "C",
+    "command": "rofi -show calc",
+    "description": "Calculadora",
+    "enabled": true
+  },
+  {
+    "mods": "CTRL SHIFT",
+    "key": "M",
+    "command": "pkill -x conky",
+    "description": "Desligar todos os widgets",
+    "enabled": true
   }
 ]
