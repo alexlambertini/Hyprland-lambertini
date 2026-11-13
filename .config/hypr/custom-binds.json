@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "mods": "SUPER",
+    "key": "S",
+    "command": "/home/lambertini/.local/bin/hypr-binds-config",
+    "description": "Abrir Atalhos Personalizados",
+    "enabled": true
+  }
+]

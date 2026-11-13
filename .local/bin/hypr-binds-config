@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import json
 import os
+import re
 import subprocess
-import sys
 
 os.environ.setdefault("GTK_THEME", "Adwaita:dark")
 
@@ -13,6 +13,7 @@ from gi.repository import Gtk, Gdk
 CONF_DIR = os.path.expanduser("~/.config/hypr")
 JSON_PATH = os.path.join(CONF_DIR, "custom-binds.json")
 LUA_PATH = os.path.join(CONF_DIR, "custom-binds.lua")
+MAIN_LUA = os.path.join(CONF_DIR, "hyprland.lua")
 
 MOD_OPTIONS = ["SUPER", "SUPER SHIFT", "SUPER CTRL", "SUPER ALT",
                "SUPER SHIFT CTRL", "SUPER SHIFT ALT", "SUPER CTRL ALT",
@@ -33,7 +34,6 @@ def load_binds():
 
 
 def lua_str(s):
-    # safe Lua double-quoted string
     s = s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
     return '"' + s + '"'
 
@@ -43,7 +43,6 @@ def mods_to_combo(mods):
     if not mods:
         return "SUPER"
     parts = [p for p in mods.replace("+", " ").split() if p]
-    # normalize
     norm = []
     for p in parts:
         u = p.upper()
@@ -101,6 +100,90 @@ def save_all(binds):
     subprocess.run(["hyprctl", "reload"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def parse_existing_binds():
+    """Best-effort read-only parse of binds from hyprland.lua."""
+    if not os.path.isfile(MAIN_LUA):
+        return []
+    try:
+        with open(MAIN_LUA, "r", encoding="utf-8") as f:
+            text = f.read()
+    except Exception:
+        return []
+
+    results = []
+    seen = set()
+
+    def add(keytxt, action):
+        item = (keytxt.strip(), action.strip())
+        if not item[0] or item in seen:
+            return
+        seen.add(item)
+        results.append({"keys": item[0], "action": item[1]})
+
+    # hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(...)) / variable action
+    for m in re.finditer(r'hl\.bind\(\s*mainMod\s*\.\.\s*"([^"]+)"\s*,\s*([^\n]+)\)\s*(?:,|\n|\))', text):
+        k = "SUPER" + m.group(1)
+        a = m.group(2).strip().rstrip(",)")
+        add(k, simplify_action(a))
+
+    # hl.bind("SUPER + X", ...)
+    for m in re.finditer(r'hl\.bind\(\s*"([^"]+)"\s*,\s*([^\n]+)\)\s*(?:,|\n|\))', text):
+        k = m.group(1)
+        a = m.group(2).strip().rstrip(",)")
+        add(k, simplify_action(a))
+
+    # workspace loop hint
+    if re.search(r'for\s+i\s*=\s*1\s*,\s*10', text) and re.search(r'workspace', text):
+        add("SUPER + 1..0", "Trocar para workspace 1..10")
+        add("SUPER + SHIFT + 1..0", "Mover janela para workspace 1..10")
+
+    # mouse binds common
+    for m in re.finditer(r'hl\.bind\(\s*mainMod\s*\.\.\s*"([^"]*mouse[^"]*)"\s*,\s*([^\n]+)\)', text):
+        add("SUPER" + m.group(1), simplify_action(m.group(2)))
+
+    return results
+
+
+def simplify_action(a):
+    a = a.strip()
+    m = re.search(r'hl\.dsp\.exec_cmd\("([^"]*)"\)', a)
+    if m:
+        return f"Executar: {m.group(1)}"
+    m = re.search(r"hl\.dsp\.exec_cmd\('([^']*)'\)", a)
+    if m:
+        return f"Executar: {m.group(1)}"
+    m = re.search(r'hl\.dsp\.exec_cmd\(([^)]+)\)', a)
+    if m:
+        v = m.group(1).strip()
+        if v in ("terminal", "fileManager", "menu"):
+            return f"Executar: {v}"
+        return f"Executar: {v}"
+    if "window.close" in a:
+        return "Fechar janela"
+    if "window.float" in a or "toggle" in a and "float" in a:
+        return "Alternar flutuante (ou ação)"
+    if "window.pseudo" in a:
+        return "Pseudo-tile"
+    if "togglesplit" in a:
+        return "Alternar split (layout)"
+    if "window.drag" in a:
+        return "Arrastar janela (mouse)"
+    if "window.resize" in a and "mouse" in a:
+        return "Redimensionar janela (mouse)"
+    if "window.resize" in a:
+        return "Redimensionar janela"
+    if "window.move" in a and "direction" in a:
+        return "Mover janela (direção)"
+    if "window.move" in a and "workspace" in a:
+        return "Mover janela para workspace"
+    if "focus" in a and "workspace" in a:
+        return "Focar workspace"
+    if "focus" in a and "monitor" in a:
+        return "Focar monitor"
+    a = re.sub(r"\s+", " ", a)
+    return a[:120] + ("…" if len(a) > 120 else "")
+
+
 CSS = b"""
 window, .background { background-color: #1e1e2e; color: #cccccc; }
 label { color: #cccccc; }
@@ -117,6 +200,9 @@ button.suggested-action { background: #df6124; color: #1e1e2e; border-color: #df
 button.suggested-action:hover { background: #ff7a3a; }
 button.destructive-action { background: #3a2a2a; color: #f38ba8; border-color: #5a3a3a; }
 scrolledwindow { border: 1px solid #3a3a4a; border-radius: 6px; }
+notebook header { background: #252536; }
+notebook tab { padding: 6px 10px; color: #cccccc; }
+notebook tab:checked { color: #df6124; }
 """
 
 
@@ -185,7 +271,7 @@ class BindDialog(Gtk.Dialog):
 class BindsWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title="Atalhos Personalizados")
-        self.set_default_size(720, 420)
+        self.set_default_size(760, 460)
         self.set_border_width(14)
         self.set_position(Gtk.WindowPosition.CENTER)
 
@@ -203,18 +289,26 @@ class BindsWindow(Gtk.Window):
         outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.add(outer)
 
-        title = Gtk.Label(label="Atalhos Personalizados")
+        title = Gtk.Label(label="Atalhos do Hyprland")
         title.get_style_context().add_class("title")
         title.set_halign(Gtk.Align.START)
         outer.pack_start(title, False, False, 0)
 
-        sub = Gtk.Label(label="Gerencia atalhos em custom-binds.lua (sem editar o hyprland.lua). Salvar aplica com hyprctl reload.")
+        sub = Gtk.Label(label="“Personalizados”: editáveis (salvos em custom-binds.lua). “Atuais (sistema)”: leitura dos binds do hyprland.lua.")
         sub.get_style_context().add_class("muted")
         sub.set_halign(Gtk.Align.START)
         sub.set_line_wrap(True)
         outer.pack_start(sub, False, False, 0)
 
-        self.store = Gtk.ListStore(str, str, str, str)
+        notebook = Gtk.Notebook()
+        outer.pack_start(notebook, True, True, 0)
+
+        # Tab custom
+        custom_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        custom_box.set_border_width(8)
+        notebook.append_page(custom_box, Gtk.Label(label="Personalizados"))
+
+        self.store = Gtk.ListStore(str, str, str)
         self.view = Gtk.TreeView(model=self.store)
         for i, col in enumerate(("Atalho", "Comando", "Descrição")):
             renderer = Gtk.CellRendererText()
@@ -227,10 +321,10 @@ class BindsWindow(Gtk.Window):
         sc = Gtk.ScrolledWindow()
         sc.set_vexpand(True)
         sc.add(self.view)
-        outer.pack_start(sc, True, True, 0)
+        custom_box.pack_start(sc, True, True, 0)
 
         actions = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        outer.pack_start(actions, False, False, 0)
+        custom_box.pack_start(actions, False, False, 0)
 
         add_btn = Gtk.Button(label="Adicionar")
         add_btn.connect("clicked", self.on_add)
@@ -253,11 +347,40 @@ class BindsWindow(Gtk.Window):
         save_btn.connect("clicked", self.on_save)
         actions.pack_start(save_btn, False, False, 0)
 
+        # Tab system
+        sys_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        sys_box.set_border_width(8)
+        notebook.append_page(sys_box, Gtk.Label(label="Atuais (sistema)"))
+
+        self.sys_store = Gtk.ListStore(str, str)
+        sys_view = Gtk.TreeView(model=self.sys_store)
+        for i, col in enumerate(("Atalho", "Ação")):
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(col, renderer, text=i)
+            column.set_resizable(True)
+            if i == 1:
+                column.set_expand(True)
+            sys_view.append_column(column)
+        sc2 = Gtk.ScrolledWindow()
+        sc2.set_vexpand(True)
+        sc2.add(sys_view)
+        sys_box.pack_start(sc2, True, True, 0)
+
+        hint = Gtk.Label(label="Lista detectada automaticamente do hyprland.lua (somente leitura). Alguns binds (funções/loops complexos) podem aparecer simplificados.")
+        hint.get_style_context().add_class("muted")
+        hint.set_halign(Gtk.Align.START)
+        hint.set_line_wrap(True)
+        sys_box.pack_start(hint, False, False, 0)
+
+        bottom = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        bottom.set_halign(Gtk.Align.END)
+        outer.pack_start(bottom, False, False, 0)
         close_btn = Gtk.Button(label="Fechar")
         close_btn.connect("clicked", lambda *_: Gtk.main_quit())
-        actions.pack_start(close_btn, False, False, 0)
+        bottom.pack_start(close_btn, False, False, 0)
 
         self.reload_store()
+        self.reload_system()
 
     def bind_label(self, b):
         mods = combo_to_bind_mods(b.get("mods", "SUPER"))
@@ -267,12 +390,12 @@ class BindsWindow(Gtk.Window):
     def reload_store(self):
         self.store.clear()
         for b in self.binds:
-            self.store.append([
-                self.bind_label(b),
-                str(b.get("command", "")),
-                str(b.get("description", "")),
-                "",
-            ])
+            self.store.append([self.bind_label(b), str(b.get("command", "")), str(b.get("description", ""))])
+
+    def reload_system(self):
+        self.sys_store.clear()
+        for b in parse_existing_binds():
+            self.sys_store.append([b.get("keys", ""), b.get("action", "")])
 
     def selected_index(self):
         sel = self.view.get_selection()
