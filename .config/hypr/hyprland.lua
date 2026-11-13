@@ -464,3 +464,11 @@ hl.window_rule({
     match = { class = "opencode-web" },
     float = false,
 })
+
+-- Painel de inatividade/bloqueio (zenity, flutuante)
+hl.window_rule({
+    name  = "hypridle-config",
+    match = { title = "^(Inatividade e Bloqueio|Tempo de inatividade)$" },
+    float  = true,
+    center = true,
+})
