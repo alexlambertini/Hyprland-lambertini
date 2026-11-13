@@ -6,7 +6,7 @@ CONF="$HOME/.config/hypr/hypridle.conf"
 
 current_min() {
   if [ -f "$CONF" ]; then
-    awk '/^[[:space:]]*timeout[[:space:]]*=/{gsub(/[^0-9]/,"",$3?$3:$2); if($0~/[0-9]/){for(i=1;i<=NF;i++) if($i ~ /^[0-9]+$/){print int($i/60); exit}}}' "$CONF" 2>/dev/null | head -1
+    awk '/^[[:space:]]*timeout[[:space:]]*=/{for(i=1;i<=NF;i++){gsub(/[^0-9]/,"",$i); if($i!=""){print int($i/60); exit}}}' "$CONF" 2>/dev/null | head -1
   fi
 }
 
