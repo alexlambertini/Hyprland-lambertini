@@ -1,0 +1,9 @@
+#!/bin/bash
+if pgrep -x conky >/dev/null; then
+  pkill -x conky
+  notify-send "Conky" "Monitor desligado" 2>/dev/null || true
+else
+  conky -c "$HOME/.config/conky/conky.conf" >/dev/null 2>&1 &
+  disown
+  notify-send "Conky" "Monitor ligado" 2>/dev/null || true
+fi
