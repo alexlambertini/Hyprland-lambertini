@@ -1,0 +1,36 @@
+{
+  "widgets": [
+    {
+      "id": "dashboard",
+      "name": "Dashboard (Relógio, Calendário, Clima, Mídia)",
+      "config": "/home/lambertini/.config/conky/conky.conf",
+      "class": "conky-monitor",
+      "enabled": true,
+      "alignment": "top_right",
+      "gap_x": 20,
+      "gap_y": 0
+    },
+    {
+      "id": "system",
+      "name": "Sistema (CPU, RAM, Disco, Rede, Top processos)",
+      "config": "/home/lambertini/.config/conky/conky-system.conf",
+      "class": "conky-monitor",
+      "enabled": true,
+      "alignment": "top_right",
+      "gap_x": 20,
+      "gap_y": 491
+    },
+    {
+      "id": "notes",
+      "name": "Notas / Lembretes",
+      "config": "/home/lambertini/.config/conky/conky-notes.conf",
+      "class": "conky-monitor",
+      "enabled": true,
+      "alignment": "top_right",
+      "gap_x": 20,
+      "gap_y": 879
+    }
+  ],
+  "margin_top": 0,
+  "gap_between": 50
+}

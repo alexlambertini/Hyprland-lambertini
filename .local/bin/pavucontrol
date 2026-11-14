@@ -1,0 +1,8 @@
+#!/bin/sh
+# Usa o pavucontrol extraído em ~/.local/opt (se existir) ou o do sistema.
+DEST="$HOME/.local/opt/pavucontrol/usr"
+if [ -x "$DEST/bin/pavucontrol" ]; then
+  export XDG_DATA_DIRS="$DEST/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+  exec "$DEST/bin/pavucontrol" "$@"
+fi
+exec pavucontrol "$@"

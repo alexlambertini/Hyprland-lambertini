@@ -1,0 +1,2 @@
+- Adicione seus lembretes aqui
+- Edite: ~/.config/conky/notes.txt

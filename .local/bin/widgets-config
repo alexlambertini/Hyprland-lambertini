@@ -1,0 +1,249 @@
+#!/usr/bin/env python3
+import json
+import os
+import subprocess
+
+os.environ.setdefault("GTK_THEME", "Adwaita:dark")
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
+
+STATE_PATH = os.path.expanduser("~/.config/conky/widgets.json")
+APPLY_BIN = os.path.expanduser("~/.local/bin/widgets-apply")
+
+ALIGN_OPTIONS = [
+    ("top_right", "Direita"),
+    ("top_left", "Esquerda"),
+]
+ALIGN_TO_IDX = {k: i for i, (k, _) in enumerate(ALIGN_OPTIONS)}
+IDX_TO_ALIGN = {i: k for i, (k, _) in enumerate(ALIGN_OPTIONS)}
+
+# alturas aproximadas para empilhamento automático (por id)
+WIDGET_HEIGHT = {
+    "dashboard": 500,
+    "system": 360,
+    "notes": 180,
+}
+DEFAULT_HEIGHT = 260
+GAP_BETWEEN = 20
+
+
+def load_state():
+    try:
+        with open(STATE_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict) and isinstance(data.get("widgets"), list):
+            if "margin_top" not in data:
+                data["margin_top"] = 30
+            return data
+    except Exception:
+        pass
+    return {"widgets": [], "margin_top": 30}
+
+
+def save_state(state):
+    os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
+    with open(STATE_PATH, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
+
+def compute_positions(widgets, margin_top):
+    """Atribui gap_y automaticamente por coluna, na ordem da lista, para widgets ativos."""
+    top = int(margin_top)
+    columns = {"top_right": top, "top_left": top}
+    for w in widgets:
+        if not w.get("enabled", False):
+            continue
+        align = w.get("alignment", "top_right")
+        if align not in columns:
+            align = "top_left" if "left" in align else "top_right"
+            w["alignment"] = align
+        w["gap_y"] = columns[align]
+        h = WIDGET_HEIGHT.get(w.get("id"), DEFAULT_HEIGHT)
+        columns[align] += h + GAP_BETWEEN
+    return widgets
+
+
+CSS = b"""
+* { font-family: "JetBrains Mono Nerd Font"; font-size: 13px; }
+window, .background { background-color: #1e1e2e; color: #cccccc; }
+label { color: #cccccc; }
+label.title { font-size: 16px; font-weight: 700; color: #cccccc; }
+label.muted { color: #888888; font-size: 12px; }
+.header { padding: 4px 2px 8px 2px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+button {
+    background: #252536; color: #cccccc;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 0px; padding: 6px 14px;
+}
+button:hover { background: #2f2f42; color: #df6124; border-color: #df6124; }
+button.suggested-action { background: #df6124; color: #1e1e2e; border-color: #df6124; font-weight: 700; }
+button.suggested-action:hover { background: #ff7a3a; color: #1e1e2e; }
+spinbutton, combobox, combobox box, combobox button {
+    background: #252536; color: #cccccc;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 0px; padding: 4px 6px;
+}
+notebook header { background: #1e1e2e; border-bottom: 1px solid rgba(255,255,255,0.1); }
+notebook tab { padding: 8px 14px; color: #888888; }
+notebook tab:checked { color: #df6124; }
+notebook stack { background: #1e1e2e; }
+frame { border: 1px solid rgba(255,255,255,0.1); border-radius: 0px; background: #252536; }
+"""
+
+
+class WidgetsWindow(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Painel de Widgets")
+        self.set_default_size(560, 400)
+        self.set_border_width(12)
+        self.set_position(Gtk.WindowPosition.CENTER)
+
+        provider = Gtk.CssProvider()
+        try:
+            provider.load_from_data(CSS)
+            Gtk.StyleContext.add_provider_for_screen(
+                Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
+        except Exception:
+            pass
+
+        self.state = load_state()
+        self.rows = []
+
+        outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.add(outer)
+
+        header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        header.get_style_context().add_class("header")
+        outer.pack_start(header, False, False, 0)
+
+        title = Gtk.Label(label="Painel de Widgets")
+        title.get_style_context().add_class("title")
+        title.set_halign(Gtk.Align.START)
+        header.pack_start(title, False, False, 0)
+
+        sub = Gtk.Label(label="Ative/desative widgets e escolha a coluna. O empilhamento é automático (float), medindo a altura real de cada widget.")
+        sub.get_style_context().add_class("muted")
+        sub.set_halign(Gtk.Align.START)
+        sub.set_line_wrap(True)
+        header.pack_start(sub, False, False, 0)
+
+        # margem superior global
+        top_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        outer.pack_start(top_box, False, False, 0)
+        top_box.pack_start(Gtk.Label(label="Margem superior (topo)", xalign=0), False, False, 0)
+        adjt = Gtk.Adjustment(value=int(self.state.get("margin_top", 30)), lower=-400, upper=2000, step_increment=10, page_increment=40)
+        self.margin_top_spin = Gtk.SpinButton(adjustment=adjt, digits=0)
+        top_box.pack_start(self.margin_top_spin, False, False, 0)
+
+        # espacamento entre widgets (margem superior de cada um)
+        gap_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        outer.pack_start(gap_box, False, False, 0)
+        gap_box.pack_start(Gtk.Label(label="Espaçamento entre widgets (px)", xalign=0), False, False, 0)
+        adjg = Gtk.Adjustment(value=int(self.state.get("gap_between", 50)), lower=0, upper=600, step_increment=5, page_increment=25)
+        self.gap_between_spin = Gtk.SpinButton(adjustment=adjg, digits=0)
+        gap_box.pack_start(self.gap_between_spin, False, False, 0)
+
+        notebook = Gtk.Notebook()
+        notebook.set_scrollable(True)
+        outer.pack_start(notebook, True, True, 0)
+
+        for w in self.state.get("widgets", []):
+            tab_label = Gtk.Label(label=w.get("name", w.get("id", "Widget")))
+            page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+            page.set_border_width(16)
+            notebook.append_page(page, tab_label)
+
+            grid = Gtk.Grid(column_spacing=12, row_spacing=12)
+            page.pack_start(grid, False, False, 0)
+
+            grid.attach(Gtk.Label(label="Ativo", xalign=0), 0, 0, 1, 1)
+            sw = Gtk.Switch()
+            sw.set_active(bool(w.get("enabled", False)))
+            sw.set_halign(Gtk.Align.START)
+            grid.attach(sw, 1, 0, 1, 1)
+
+            align = w.get("alignment", "top_right")
+            if align not in ALIGN_TO_IDX:
+                align = "top_left" if "left" in str(align) else "top_right"
+            grid.attach(Gtk.Label(label="Coluna", xalign=0), 0, 1, 1, 1)
+            combo = Gtk.ComboBoxText()
+            for _, label in ALIGN_OPTIONS:
+                combo.append_text(label)
+            combo.set_active(ALIGN_TO_IDX.get(align, 0))
+            grid.attach(combo, 1, 1, 1, 1)
+
+            grid.attach(Gtk.Label(label="Margem lateral", xalign=0), 0, 2, 1, 1)
+            adjx = Gtk.Adjustment(value=int(w.get("gap_x", 20)), lower=0, upper=2000, step_increment=5, page_increment=20)
+            spx = Gtk.SpinButton(adjustment=adjx, digits=0)
+            grid.attach(spx, 1, 2, 1, 1)
+
+            info = Gtk.Label(label=f"Config: {w.get('config','')}\nA posição vertical é automática (empilhamento).", xalign=0)
+            info.get_style_context().add_class("muted")
+            info.set_line_wrap(True)
+            page.pack_start(info, False, False, 0)
+
+            self.rows.append((w, sw, combo, spx))
+
+        if not self.rows:
+            page = Gtk.Box()
+            page.set_border_width(16)
+            lbl = Gtk.Label(label="Nenhum widget definido em ~/.config/conky/widgets.json")
+            lbl.get_style_context().add_class("muted")
+            page.pack_start(lbl, True, True, 0)
+            notebook.append_page(page, Gtk.Label(label="Widgets"))
+
+        hint = Gtk.Label(label="A “Margem superior (topo)” move a coluna inteira. Os widgets são empilhados logo abaixo um do outro, sem espaçamento fixo.")
+        hint.get_style_context().add_class("muted")
+        hint.set_halign(Gtk.Align.START)
+        hint.set_line_wrap(True)
+        outer.pack_start(hint, False, False, 0)
+
+        actions = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        actions.set_halign(Gtk.Align.END)
+        outer.pack_start(actions, False, False, 0)
+
+        save_btn = Gtk.Button(label="Salvar e aplicar")
+        save_btn.get_style_context().add_class("suggested-action")
+        save_btn.connect("clicked", self.on_save)
+        actions.pack_start(save_btn, False, False, 0)
+
+        close_btn = Gtk.Button(label="Fechar")
+        close_btn.connect("clicked", lambda *_: Gtk.main_quit())
+        actions.pack_start(close_btn, False, False, 0)
+
+    def collect(self):
+        widgets = []
+        for w, sw, combo, spx in self.rows:
+            nw = dict(w)
+            nw["enabled"] = bool(sw.get_active())
+            nw["alignment"] = IDX_TO_ALIGN.get(combo.get_active(), "top_right")
+            nw["gap_x"] = int(spx.get_value())
+            widgets.append(nw)
+        margin_top = int(self.margin_top_spin.get_value())
+        # A posição vertical (gap_y) é calculada em widgets-apply medindo a altura real.
+        self.state["widgets"] = widgets
+        self.state["margin_top"] = margin_top
+        self.state["gap_between"] = int(self.gap_between_spin.get_value())
+        return self.state
+
+    def on_save(self, *_):
+        state = self.collect()
+        save_state(state)
+        if os.path.isfile(APPLY_BIN):
+            subprocess.Popen([APPLY_BIN], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                             stdin=subprocess.DEVNULL, start_new_session=True)
+        else:
+            subprocess.run(["pkill", "-x", "conky"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def main():
+    win = WidgetsWindow()
+    win.connect("destroy", Gtk.main_quit)
+    win.show_all()
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()

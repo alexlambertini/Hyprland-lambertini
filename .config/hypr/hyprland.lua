@@ -489,19 +489,27 @@ hl.window_rule({
     center = true,
 })
 
+-- Painel de widgets (flutuante)
+hl.window_rule({
+    name   = "widgets-config",
+    match  = { title = "^Painel de Widgets$" },
+    float  = true,
+    center = true,
+})
+
 -- Widget Conky (monitor de sistema na área de trabalho)
 hl.window_rule({
     name        = "conky-monitor",
     match       = { class = "^conky-monitor$" },
     float       = true,
-    pin         = true,
-    no_focus    = false,
+    pin         = false,
+    no_focus    = true,
     border_size = 0,
 })
 
--- Widget Conky (monitor de sistema)
+-- Widgets de área de trabalho (Conky, gerenciados pelo Painel de Widgets)
 hl.on("hyprland.start", function ()
-    hl.exec_cmd("pkill -x conky 2>/dev/null; conky -c ~/.config/conky/conky.conf &")
+    hl.exec_cmd("sleep 1; ~/.local/bin/widgets-apply &")
 end)
 
 -- Atalhos personalizados (gerenciados pelo painel "Atalhos Personalizados")

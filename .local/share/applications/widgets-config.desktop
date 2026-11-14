@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Painel de Widgets
+Comment=Habilitar, desabilitar e posicionar widgets da área de trabalho
+Exec=/home/lambertini/.local/bin/widgets-config
+Icon=preferences-desktop-widgets
+Terminal=false
+Categories=Settings;System;
+Keywords=widgets;conky;painel;desktop;monitor;posicao;

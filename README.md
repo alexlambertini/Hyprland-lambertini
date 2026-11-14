@@ -11,14 +11,22 @@ Conjunto de configurações para **Hyprland (Lua, 0.57+)**, **Waybar** (baseado 
 - `.config/hypr/scripts/music-notify.sh` — notificação de faixa via `playerctl` + `notify-send`.
 - `.config/hypr/scripts/screenshot-region.sh` — captura de região (`grim` + `slurp`) com cópia para área de transferência e notificação.
 - `.config/hypr/current-wallpaper` — caminho do wallpaper padrão/restaurado.
-- `.config/rofi/` — tema/config do launcher (drun/run/window).
+- `.config/hypr/custom-binds.json` / `custom-binds.lua` — atalhos personalizados, editáveis pelo app **Atalhos do Sistema** (sem editar o `hyprland.lua`).
+- `.config/hypr/hypridle.conf` / `hyprlock.conf` — inatividade (bloqueio/desligar tela) e tela de bloqueio.
+- `.config/rofi/` — tema/config do launcher (drun/run/window), calculadora (`ALT+C`), combi e navegador de arquivos.
 - `.config/dunst/dunstrc` — notificações no mesmo visual.
 - `.config/kitty/kitty.conf` — terminal Kitty com cores do tema, transparência, padding e ajustes visuais (cursor/abas).
 - `.config/gtk-3.0/` e `.config/gtk-4.0/` — ajustes de tema/cores GTK (aproxima o visual para apps GTK como Nautilus).
+- `.config/conky/` — widgets de área de trabalho no tema Waybar: dashboard (relógio/calendário/clima/mídia), sistema (CPU/RAM/disco/rede/top) e notas; scripts `weather-short.sh`/`now-playing.sh` e estado `widgets.json`.
+- `.local/bin/widgets-config` — **Painel de Widgets** (GTK): habilita/desabilita, escolhe a coluna e o espaçamento (aberto pelo drun).
+- `.local/bin/widgets-apply` — aplica o layout dos widgets (mede a altura real e empilha com espaçamento uniforme).
+- `.local/bin/conky-toggle` — liga/desliga os widgets habilitados (`CTRL+SHIFT+M`).
+- `.local/bin/hypr-binds-config` — **Atalhos do Sistema** (ver atalhos atuais e adicionar personalizados).
+- `.local/bin/hypridle-config` — configura inatividade/bloqueio de tela.
+- `.local/bin/pavucontrol` — lançador do controle de áudio (usa `~/.local/opt` se existir, senão o `pavucontrol` do sistema).
 - `bin/hypr-wallpaper-menu` — seletor de wallpaper (wofi) com persistência via `swaybg`.
 - `bin/hypr-resolution-menu` — seletor de resolução/monitor (rofi + `hyprctl`/`wlr-randr`).
-- `.local/share/applications/hypr-wallpaper.desktop` — atalho no drun para ajustar wallpaper (ícone de imagem).
-- `.local/share/applications/hypr-resolution.desktop` — atalho no drun para ajustar resolução.
+- `.local/share/applications/*.desktop` — atalhos no drun: ajustar wallpaper/resolução, **Atalhos do Sistema**, **Inatividade e Bloqueio** e **Painel de Widgets**.
 - `wallpapers/` — wallpapers incluídos (copiados para `~/Pictures/Wallpapers` pelo `install.sh`).
 - `install.sh` — instala/configura (com backup) os arquivos no usuário.
 - `bootstrap.sh` — clona (se preciso), pode instalar dependências (Fedora) e roda o `install.sh`.
@@ -36,6 +44,8 @@ sudo dnf install -y \
   grim slurp wl-clipboard \
   jq curl \
   lm_sensors \
+  conky \
+  pavucontrol \
   playerctl \
   mpv audacious \
   pipewire pipewire-pulseaudio wireplumber \
@@ -54,6 +64,7 @@ sudo dnf install -y \
 - **Wallpaper:** `swaybg` (aplicação/restauração do papel de parede).
 - **Captura de tela:** `grim`, `slurp`, `wl-clipboard` (`SUPER+SHIFT+S`).
 - **Scripts/widgets:** `jq`, `curl` (clima, teclado, parse), `lm_sensors` (temperatura).
+- **Widgets de área de trabalho:** `conky` (dashboard/sistema/notas na área de trabalho, no tema Waybar).
 - **Mídia:** `playerctl` (controles/MPRIS e notificação de faixa), `mpv` (vídeo), `audacious` (música).
 - **Áudio:** `pipewire`, `pipewire-pulseaudio`, `wireplumber`, `wpctl` (volume/microfone).
 - **Rede:** `NetworkManager` (`nmcli`/interface e tráfego).
@@ -104,6 +115,10 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - `SUPER + SHIFT + ←/→/↑/↓` — mover janela
 - `SUPER + CTRL + ←/→/↑/↓` — redimensionar (segurar repete)
 - `SUPER + SHIFT + S` — captura de tela por região (salva em `~/Pictures/Screenshots` e copia para área de transferência)
+- `SUPER + S` — **Atalhos do Sistema** (ver atalhos atuais e adicionar personalizados)
+- `ALT + C` — calculadora (Rofi calc)
+- `CTRL + SHIFT + M` — ligar/desligar os widgets de área de trabalho (Conky)
+- `SUPER + SHIFT + A` — controle de áudio (pavucontrol)
 - `SUPER + 1..0` — workspaces / `SUPER + SHIFT + 1..0` mover para workspace
 - Mídia/volume/brilho: teclas XF86 (volume/mute via `wpctl`, brilho via `brightnessctl`, mídia via `playerctl`)
 
@@ -121,6 +136,16 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - **Rede** (`network`): ícone/ESSID (tooltip com tráfego).
 
 Widgets ocultos ficam como **ícone apagado** (clicável) para reexibir. Estado salvo em `~/.config/waybar/.<nome>-enabled`.
+
+## Widgets de área de trabalho (Conky)
+
+- Widgets no tema Waybar (fundo translúcido, texto `#cccccc`, destaque `#df6124`) na área de trabalho, **atrás** das janelas:
+  - **Dashboard** — relógio, data, calendário, clima (`wttr.in`) e “tocando agora” (`playerctl`).
+  - **Sistema** — CPU, RAM, disco, rede e top 5 processos.
+  - **Notas / Lembretes** — lê `~/.config/conky/notes.txt` (editável).
+- **Painel de Widgets** (drun → “Painel de Widgets”, ou `~/.local/bin/widgets-config`): abas por widget para **ativar/desativar**, escolher a **coluna** (Direita/Esquerda), a **margem lateral** e o **espaçamento entre widgets**; o botão *Salvar e aplicar* recalcula as posições e reinicia os widgets.
+- **`CTRL + SHIFT + M`** liga/desliga os widgets habilitados (`~/.local/bin/conky-toggle`).
+- Estado em `~/.config/conky/widgets.json`. O `~/.local/bin/widgets-apply` mede a **altura real** de cada widget e os empilha (como um *float*), com espaçamento uniforme e sem sobreposição.
 
 ## Wallpaper (persistente)
 

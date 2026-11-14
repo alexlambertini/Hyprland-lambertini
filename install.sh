@@ -16,7 +16,7 @@ echo "== Instalando configurações do hypr-waybar-theme =="
 
 # Dependências (Fedora) - instale antes se necessário:
 # sudo dnf install -y waybar rofi dunst jq curl lm_sensors mpv audacious playerctl \
-#   wl-clipboard swaybg wofi grim slurp brightnessctl pavucontrol git nautilus papirus-icon-theme kitty chromium
+#   wl-clipboard swaybg wofi grim slurp brightnessctl pavucontrol conky git nautilus papirus-icon-theme kitty chromium
 # Opcionais: wttrbar, blueman, power-profiles-daemon ou tuned-ppd, qt6ct/kvantum (Qt)
 
 mkdir -p "$HOME/.config" "$HOME/bin" "$HOME/.local/share/applications"
@@ -67,6 +67,33 @@ if [ -d "$REPO_DIR/.config/kitty" ]; then
   cp -rf "$REPO_DIR/.config/kitty/." "$HOME/.config/kitty/"
 fi
 
+# Conky (widgets de área de trabalho: dashboard, sistema, notas)
+if [ -d "$REPO_DIR/.config/conky" ]; then
+  backup_if_exists "$HOME/.config/conky"
+  mkdir -p "$HOME/.config/conky"
+  cp -rf "$REPO_DIR/.config/conky/." "$HOME/.config/conky/"
+fi
+
+# Atalhos personalizados (custom-binds) + hypridle/hyprlock
+# custom-binds.* são dados do usuário: só criados se ainda não existirem.
+for f in custom-binds.json custom-binds.lua; do
+  if [ -f "$REPO_DIR/.config/hypr/$f" ] && [ ! -f "$HOME/.config/hypr/$f" ]; then
+    cp -f "$REPO_DIR/.config/hypr/$f" "$HOME/.config/hypr/$f"
+  fi
+done
+for f in hypridle.conf hyprlock.conf; do
+  if [ -f "$REPO_DIR/.config/hypr/$f" ]; then
+    backup_if_exists "$HOME/.config/hypr/$f"
+    cp -f "$REPO_DIR/.config/hypr/$f" "$HOME/.config/hypr/$f"
+  fi
+done
+
+# Scripts em ~/.local/bin (painéis, widgets, toggle de Conky, áudio)
+mkdir -p "$HOME/.local/bin"
+if [ -d "$REPO_DIR/.local/bin" ]; then
+  cp -f "$REPO_DIR/.local/bin/"* "$HOME/.local/bin/" 2>/dev/null || true
+fi
+
 # Bin e desktop
 backup_if_exists "$HOME/bin/hypr-wallpaper-menu"
 cp -f "$REPO_DIR/bin/hypr-wallpaper-menu" "$HOME/bin/hypr-wallpaper-menu"
@@ -74,13 +101,15 @@ if [ -f "$REPO_DIR/bin/hypr-resolution-menu" ]; then
   backup_if_exists "$HOME/bin/hypr-resolution-menu"
   cp -f "$REPO_DIR/bin/hypr-resolution-menu" "$HOME/bin/hypr-resolution-menu"
 fi
-cp -f "$REPO_DIR/.local/share/applications/hypr-wallpaper.desktop" "$HOME/.local/share/applications/hypr-wallpaper.desktop"
-if [ -f "$REPO_DIR/.local/share/applications/hypr-resolution.desktop" ]; then
-  cp -f "$REPO_DIR/.local/share/applications/hypr-resolution.desktop" "$HOME/.local/share/applications/hypr-resolution.desktop"
+# Entradas .desktop (wallpaper, resolução, atalhos, inatividade, painel de widgets)
+if [ -d "$REPO_DIR/.local/share/applications" ]; then
+  cp -f "$REPO_DIR/.local/share/applications/"*.desktop "$HOME/.local/share/applications/" 2>/dev/null || true
 fi
 
 # Permissões
-chmod +x "$HOME/.config/waybar/"*.sh "$HOME/.config/hypr/scripts/"*.sh "$HOME/bin/hypr-wallpaper-menu" "$HOME/bin/hypr-resolution-menu" 2>/dev/null || true
+chmod +x "$HOME/.config/waybar/"*.sh "$HOME/.config/hypr/scripts/"*.sh \
+  "$HOME/.config/conky/"*.sh "$HOME/.local/bin/"* \
+  "$HOME/bin/hypr-wallpaper-menu" "$HOME/bin/hypr-resolution-menu" 2>/dev/null || true
 
 echo "== Concluído =="
 echo "- Recarregue o Hyprland: hyprctl reload"
