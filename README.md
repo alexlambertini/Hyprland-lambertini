@@ -119,6 +119,7 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - `ALT + C` — calculadora (Rofi calc)
 - `CTRL + SHIFT + M` — ligar/desligar os widgets de área de trabalho (Conky)
 - `SUPER + SHIFT + A` — controle de áudio (pavucontrol)
+- `SUPER + K` — alternar o layout do teclado (BR ⇄ US-Intl)
 - `SUPER + 1..0` — workspaces / `SUPER + SHIFT + 1..0` mover para workspace
 - Mídia/volume/brilho: teclas XF86 (volume/mute via `wpctl`, brilho via `brightnessctl`, mídia via `playerctl`)
 
@@ -126,7 +127,7 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 
 - **Assistente/OpenCode** (`custom/opencode`): botão na barra (exibido apenas se o `opencode` estiver instalado) para abrir/fechar o painel lateral (também via `SUPER + A`).
 - **Clima** (`custom/weather`): temperatura automática — clique para **ocultar/mostrar**.
-- **Teclado** (`custom/kblayout`): layout ativo — clique para ocultar/mostrar.
+- **Teclado** (`custom/kblayout`): layout ativo — clique esquerdo **alterna** o layout (BR ⇄ US-Intl), clique direito **oculta/mostra**.
 - **Tráfego de rede** (`custom/netspeed`): ↓/↑ na interface — clique para ocultar/mostrar.
 - **Disco** (`custom/disk`): uso de `/` — clique para ocultar/mostrar.
 - **Temperatura** (`custom/temp`): CPU/GPU via `sensors` — clique para ocultar/mostrar.
@@ -136,6 +137,12 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - **Rede** (`network`): ícone/ESSID (tooltip com tráfego).
 
 Widgets ocultos ficam como **ícone apagado** (clicável) para reexibir. Estado salvo em `~/.config/waybar/.<nome>-enabled`.
+
+## Teclado (layout)
+
+- Dois layouts definidos em `~/.config/hypr/hyprland.lua` (`input`): **BR** (`br`/`abnt2`) e **US International** (`us`/`intl`, com **dead keys**: `´ ` ^ ~ ¨` — ex.: `'`+`a`→`á`, `'`+`c`→`ç`).
+- **Alternar:** `SUPER + K` ou clique esquerdo no módulo **Teclado** da Waybar (clique direito oculta/mostra). Os scripts são `~/.config/waybar/kblayout-switch.sh` (alterna e atualiza a barra) e `kblayout-action.sh` (ação do clique).
+- Ideal para teclado físico US (sem tecla dedicada de `ç`), mantendo o BR disponível.
 
 ## Widgets de área de trabalho (Conky)
 

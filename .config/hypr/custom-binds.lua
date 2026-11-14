@@ -12,3 +12,6 @@ hl.bind("SHIFT + CTRL + M", hl.dsp.exec_cmd("/home/lambertini/.local/bin/conky-t
 
 -- Controle de volume e saídas de áudio (pavucontrol)
 hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd("/home/lambertini/.local/bin/pavucontrol"))
+
+-- Alternar layout do teclado (BR / US-Intl)
+hl.bind("SUPER + K", hl.dsp.exec_cmd("/home/lambertini/.config/waybar/kblayout-switch.sh"))

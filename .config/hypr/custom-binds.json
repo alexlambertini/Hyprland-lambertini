@@ -26,5 +26,12 @@
     "command": "/home/lambertini/.local/bin/pavucontrol",
     "description": "Controle de volume e saídas de áudio (pavucontrol)",
     "enabled": true
+  },
+  {
+    "mods": "SUPER",
+    "key": "K",
+    "command": "/home/lambertini/.config/waybar/kblayout-switch.sh",
+    "description": "Alternar layout do teclado (BR / US-Intl)",
+    "enabled": true
   }
 ]

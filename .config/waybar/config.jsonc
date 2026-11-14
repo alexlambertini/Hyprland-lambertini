@@ -307,7 +307,8 @@
     "exec": "~/.config/waybar/kblayout.sh",
     "return-type": "json",
     "signal": 15,
-    "on-click": "~/.config/waybar/widget-toggle.sh kblayout 15"
+    "on-click": "~/.config/waybar/kblayout-action.sh",
+    "on-click-right": "~/.config/waybar/widget-toggle.sh kblayout 15"
   },
   "custom/netspeed": {
     "format": "{}",

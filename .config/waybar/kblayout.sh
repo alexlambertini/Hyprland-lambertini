@@ -20,4 +20,4 @@ echo "$LAYOUT" | grep -qi "english" && SHORT="US"
 # Escapa para JSON
 SHORT_ESC=$(printf '%s' "$SHORT" | sed 's/\\/\\\\/g; s/"/\\"/g')
 LAYOUT_ESC=$(printf '%s' "$LAYOUT" | sed 's/\\/\\\\/g; s/"/\\"/g')
-echo "{\"text\":\"󰌌 ${SHORT_ESC}\",\"tooltip\":\"Teclado: ${LAYOUT_ESC}\\n(clique para ocultar/mostrar)\",\"class\":\"enabled\"}"
+echo "{\"text\":\"󰌌 ${SHORT_ESC}\",\"tooltip\":\"Teclado: ${LAYOUT_ESC}\\nClique esquerdo: alternar (BR/US-Intl)\\nClique direito: ocultar/mostrar\",\"class\":\"enabled\"}"
