@@ -9,3 +9,6 @@ hl.bind("ALT + C", hl.dsp.exec_cmd("rofi -show calc"))
 
 -- Ligar/desligar widgets (Conky)
 hl.bind("SHIFT + CTRL + M", hl.dsp.exec_cmd("/home/lambertini/.local/bin/conky-toggle"))
+
+-- Controle de volume e saídas de áudio (pavucontrol)
+hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd("/home/lambertini/.local/bin/pavucontrol"))

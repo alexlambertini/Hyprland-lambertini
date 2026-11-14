@@ -19,5 +19,12 @@
     "command": "/home/lambertini/.local/bin/conky-toggle",
     "description": "Ligar/desligar widgets (Conky)",
     "enabled": true
+  },
+  {
+    "mods": "SUPER SHIFT",
+    "key": "A",
+    "command": "/home/lambertini/.local/bin/pavucontrol",
+    "description": "Controle de volume e saídas de áudio (pavucontrol)",
+    "enabled": true
   }
 ]
