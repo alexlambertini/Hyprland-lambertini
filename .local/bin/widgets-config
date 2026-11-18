@@ -95,6 +95,7 @@ frame { border: 1px solid rgba(255,255,255,0.1); border-radius: 0px; background:
 class WidgetsWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title="Painel de Widgets")
+        self.set_icon_name("conky")
         self.set_default_size(560, 400)
         self.set_border_width(12)
         self.set_position(Gtk.WindowPosition.CENTER)

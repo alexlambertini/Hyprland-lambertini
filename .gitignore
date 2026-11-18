@@ -1,5 +1,6 @@
 # Caches/estado runtime
 .config/waybar/.netspeed-cache
+.config/conky/calendar-state.lua
 
 # Backups locais
 *.bak

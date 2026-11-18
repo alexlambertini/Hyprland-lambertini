@@ -72,6 +72,18 @@ if [ -d "$REPO_DIR/.config/conky" ]; then
   backup_if_exists "$HOME/.config/conky"
   mkdir -p "$HOME/.config/conky"
   cp -rf "$REPO_DIR/.config/conky/." "$HOME/.config/conky/"
+  # O Conky não expande '~' nem '$HOME' em lua_load (precisa de caminho
+  # absoluto): reescreve com o HOME real do usuário.
+  #   conky.conf       -> calendar.lua (tooltip de feriados)
+  #   conky-notes.conf -> notes.lua    (botão "Editar notas")
+  if [ -f "$HOME/.config/conky/conky.conf" ]; then
+    sed -i "s#^\([[:space:]]*lua_load[[:space:]]*=[[:space:]]*\).*#\1'$HOME/.config/conky/calendar.lua',#" \
+      "$HOME/.config/conky/conky.conf"
+  fi
+  if [ -f "$HOME/.config/conky/conky-notes.conf" ]; then
+    sed -i "s#^\([[:space:]]*lua_load[[:space:]]*=[[:space:]]*\).*#\1'$HOME/.config/conky/notes.lua',#" \
+      "$HOME/.config/conky/conky-notes.conf"
+  fi
 fi
 
 # Atalhos personalizados (custom-binds) + hypridle/hyprlock

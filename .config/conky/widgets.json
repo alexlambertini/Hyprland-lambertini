@@ -8,7 +8,7 @@
       "enabled": true,
       "alignment": "top_right",
       "gap_x": 20,
-      "gap_y": 0
+      "gap_y": 20
     },
     {
       "id": "system",
@@ -18,7 +18,7 @@
       "enabled": true,
       "alignment": "top_right",
       "gap_x": 20,
-      "gap_y": 491
+      "gap_y": 398
     },
     {
       "id": "notes",
@@ -28,9 +28,9 @@
       "enabled": true,
       "alignment": "top_right",
       "gap_x": 20,
-      "gap_y": 879
+      "gap_y": 746
     }
   ],
-  "margin_top": 0,
-  "gap_between": 50
+  "margin_top": 20,
+  "gap_between": 10
 }
