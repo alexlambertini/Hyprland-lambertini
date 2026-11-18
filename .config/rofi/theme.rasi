@@ -1,6 +1,6 @@
 * {
-    bg:      #1e1e2ef7;
-    bg-alt:  #252536f0;
+    bg:      #1e1e2ecc;
+    bg-alt:  #252536e6;
     fg:      #cccccc;
     fg-dim:  #888888;
     accent:  #df6124;

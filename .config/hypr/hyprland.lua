@@ -465,6 +465,20 @@ hl.window_rule({
 -- })
 -- overlayLayerRule:set_enabled(false)
 
+-- Blur nas camadas (waybar/rofi) — casa com os fundos translúcidos do tema.
+hl.layer_rule({
+    name         = "waybar-blur",
+    match        = { namespace = "waybar" },
+    blur         = true,
+    ignore_alpha = 0.5,
+})
+hl.layer_rule({
+    name         = "rofi-blur",
+    match        = { namespace = "rofi" },
+    blur         = true,
+    ignore_alpha = 0.5,
+})
+
 -- Hyprland-run windowrule
 hl.window_rule({
     name  = "move-hyprland-run",
