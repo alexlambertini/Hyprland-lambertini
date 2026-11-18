@@ -118,6 +118,7 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - `SUPER + CTRL + ←/→/↑/↓` — redimensionar (segurar repete)
 - `SUPER + SHIFT + S` — captura de tela por região (salva em `~/Pictures/Screenshots` e copia para área de transferência)
 - `SUPER + S` — **Atalhos do Sistema** (ver atalhos atuais e adicionar personalizados)
+- `SUPER + N` — **Central de Controle** (Rede/Tailscale, Wi-Fi, Bluetooth, Áudio, Mídia, perfil de energia, captura, clipboard, widgets e sessão)
 - `ALT + C` — calculadora (Rofi calc)
 - `CTRL + SHIFT + M` — ligar/desligar os widgets de área de trabalho (Conky)
 - `SUPER + SHIFT + A` — controle de áudio (pavucontrol)

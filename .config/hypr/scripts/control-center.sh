@@ -1,7 +1,8 @@
 #!/bin/bash
 # Central de Controle (Rofi) — menu único no tema do sistema com submenus:
-#   Rede (cabeada + Tailscale), Áudio, Mídia, Perfil de energia,
+#   Rede (cabeada + Tailscale), Wi-Fi, Bluetooth, Áudio, Mídia, Perfil de energia,
 #   Captura de tela, Área de transferência, Widgets (Conky) e Sessão.
+# Wi-Fi/Bluetooth só aparecem com adaptador; sem hardware avisam e voltam.
 #
 # Abrir com: SUPER + N
 set -uo pipefail
@@ -54,6 +55,103 @@ net_menu() {
     *"Desconectar cabeada"*) [ -n "$w" ] && nmcli connection down "$w" >/dev/null 2>&1 && notify "Rede" "Desconectado: $w" ;;
     *"Tailscale — ligar"*)    priv tailscale up  >/dev/null 2>&1 && notify "Tailscale" "Ligado" ;;
     *"Tailscale — desligar"*) priv tailscale down >/dev/null 2>&1 && notify "Tailscale" "Desligado" ;;
+  esac
+}
+
+# ------------------------------- Wi-Fi ------------------------------
+wifi_dev()    { nmcli -t -f DEVICE,TYPE device status 2>/dev/null | awk -F: '$2=="wifi"{print $1; exit}'; }
+wifi_status() { local d; d="$(wifi_dev)"
+                [ -z "$d" ] && { echo "sem adaptador"; return; }
+                [ "$(nmcli -t radio wifi 2>/dev/null)" = "enabled" ] && echo "ligado" || echo "desligado"; }
+
+wifi_scan() {
+  local sel ssid sec pw line
+  sel="$(nmcli -t -f SSID,SIGNAL,SECURITY device wifi list --rescan yes 2>/dev/null \
+        | while IFS= read -r line; do
+            sec="${line##*:}"; rest="${line%:*}"
+            sig="${rest##*:}"; ssid="${rest%:*}"
+            ssid="${ssid//\\:/:}"
+            { [ -z "$ssid" ] || [ "$ssid" = "--" ]; } && continue
+            printf '%s\t%s\t%s\n' "$ssid" "$sig" "$sec"
+          done | sort -u -t$'\t' -k1,1 \
+        | awk -F'\t' '{printf "%s  (%s%%, %s)\n",$1,$2,($3==""?"aberta":$3)}' | pick "Redes Wi-Fi")"
+  [ -z "$sel" ] && return 0
+  ssid="${sel%%  (*}"
+  sec="${sel##*  (}"; sec="${sec##*, }"; sec="${sec%)}"
+  if [ "$sec" = "aberta" ]; then
+    nmcli device wifi connect "$ssid" >/dev/null 2>&1 && notify "Wi-Fi" "Conectado: $ssid" || notify "Wi-Fi" "Falha: $ssid"
+  else
+    pw="$(ask "Senha de $ssid")"; [ -z "$pw" ] && return 0
+    nmcli device wifi connect "$ssid" password "$pw" >/dev/null 2>&1 && notify "Wi-Fi" "Conectado: $ssid" || notify "Wi-Fi" "Falha: $ssid"
+  fi
+}
+
+wifi_menu() {
+  local d sel ssid
+  d="$(wifi_dev)"
+  if [ -z "$d" ]; then notify "Wi-Fi" "Nenhum adaptador Wi-Fi detectado"; return 0; fi
+  sel="$(printf '%s\n' \
+    "󰖩  Wi-Fi: $(wifi_status)" \
+    "󰒓  Ligar Wi-Fi" \
+    "󰒓  Desligar Wi-Fi" \
+    "󰖩  Redes disponíveis..." \
+    "󰒓  Conectar a rede oculta..." | pick "Wi-Fi")"
+  case "$sel" in
+    *"Ligar Wi-Fi"*)      nmcli radio wifi on  >/dev/null 2>&1 && notify "Wi-Fi" "Ligado" ;;
+    *"Desligar Wi-Fi"*)   nmcli radio wifi off >/dev/null 2>&1 && notify "Wi-Fi" "Desligado" ;;
+    *"Redes disponíveis"*) wifi_scan ;;
+    *"rede oculta"*)      ssid="$(ask "SSID da rede")"
+                          if [ -n "$ssid" ]; then
+                            nmcli device wifi connect "$ssid" >/dev/null 2>&1 && notify "Wi-Fi" "Conectando: $ssid" || notify "Wi-Fi" "Falha: $ssid"
+                          fi ;;
+  esac
+}
+
+# ----------------------------- Bluetooth ----------------------------
+bt_ok()     { have bluetoothctl && systemctl is-active --quiet bluetooth 2>/dev/null; }
+bt_status() { bt_ok || { echo "indisponível"; return; }
+              timeout 3 bluetoothctl show 2>/dev/null | grep -q "Powered: yes" && echo "ligado" || echo "desligado"; }
+
+bt_pairs()  { timeout 5 bluetoothctl devices Paired 2>/dev/null || timeout 5 bluetoothctl paired-devices 2>/dev/null; }
+bt_list()   { timeout 5 bluetoothctl devices 2>/dev/null | sed -n 's/^Device \([0-9A-Fa-f:]\{17\}\) \(.*\)/\2  (\1)/p'; }
+
+bt_connect_menu() {
+  local sel name mac
+  sel="$(bt_pairs | sed -n 's/^Device \([0-9A-Fa-f:]\{17\}\) \(.*\)/\2  (\1)/p' | pick "Dispositivos Bluetooth")"
+  [ -z "$sel" ] && return 0
+  name="${sel%  (*}"; mac="${sel##*(}"; mac="${mac%)}"
+  timeout 15 bluetoothctl connect "$mac" >/dev/null 2>&1 && notify "Bluetooth" "Conectado: $name" || notify "Bluetooth" "Falha: $name"
+}
+
+bt_scan_menu() {
+  local sel name mac
+  notify "Bluetooth" "Procurando dispositivos (~10s)..."
+  timeout 12 bluetoothctl --timeout 10 scan on >/dev/null 2>&1
+  sel="$(bt_list | pick "Parear dispositivo")"
+  [ -z "$sel" ] && return 0
+  name="${sel%  (*}"; mac="${sel##*(}"; mac="${mac%)}"
+  timeout 15 bluetoothctl pair  "$mac" >/dev/null 2>&1
+  timeout 10 bluetoothctl trust "$mac" >/dev/null 2>&1
+  timeout 15 bluetoothctl connect "$mac" >/dev/null 2>&1 && notify "Bluetooth" "Pareado e conectado: $name" || notify "Bluetooth" "Falha: $name"
+}
+
+bt_menu() {
+  local sel extra
+  if ! bt_ok; then notify "Bluetooth" "Nenhum adaptador/serviço Bluetooth disponível"; return 0; fi
+  have blueman-manager && extra="󰂯  Abrir gerenciador (blueman)" || extra=""
+  sel="$(printf '%s\n' \
+    "󰂯  Bluetooth: $(bt_status)" \
+    "󰒓  Ligar" \
+    "󰒓  Desligar" \
+    "󰂰  Dispositivos pareados..." \
+    "󰂰  Escanear e parear..." \
+    ${extra:+"$extra"} | pick "Bluetooth")"
+  case "$sel" in
+    *"Ligar"*)    timeout 5 bluetoothctl power on  >/dev/null 2>&1 && notify "Bluetooth" "Ligado" ;;
+    *"Desligar"*) timeout 5 bluetoothctl power off >/dev/null 2>&1 && notify "Bluetooth" "Desligado" ;;
+    *"pareados"*) bt_connect_menu ;;
+    *"Escanear"*) bt_scan_menu ;;
+    *blueman*)    (blueman-manager >/dev/null 2>&1 &) ;;
   esac
 }
 
@@ -141,7 +239,9 @@ main_menu() {
   local net ts
   net="$(net_active)"; tail_up && ts="on" || ts="off"
   printf '%s\n' \
-    "󰖩  Rede — ${net:-desconectada}  (Tailscale: $ts)" \
+    "󰈀  Rede — ${net:-desconectada}  (Tailscale: $ts)" \
+    "󰖩  Wi-Fi — $(wifi_status)" \
+    "󰂯  Bluetooth — $(bt_status)" \
     "󰕾  Áudio" \
     "󰝚  Mídia" \
     "󰒓  Perfil de energia" \
@@ -151,14 +251,18 @@ main_menu() {
     "󰐥  Energia / Sessão"
 }
 
-sel="$(main_menu | pick "Central de Controle")"
-case "$sel" in
-  *Rede*)                  net_menu ;;
-  *Áudio*)                 audio_menu ;;
-  *Mídia*)                 media_menu ;;
-  *"Perfil de energia"*)   power_menu ;;
-  *Captura*)               shot_menu ;;
-  *"Área de transferência"*) "$SCRIPTS/clipboard-menu.sh" ;;
-  *Widgets*)               "$HOME/.local/bin/conky-toggle" ;;
-  *"Energia / Sessão"*)    "$HOME/.config/waybar/power-menu.sh" ;;
-esac
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  sel="$(main_menu | pick "Central de Controle")"
+  case "$sel" in
+    *Rede*)                    net_menu ;;
+    *Wi-Fi*)                   wifi_menu ;;
+    *Bluetooth*)               bt_menu ;;
+    *Áudio*)                   audio_menu ;;
+    *Mídia*)                   media_menu ;;
+    *"Perfil de energia"*)     power_menu ;;
+    *Captura*)                 shot_menu ;;
+    *"Área de transferência"*) "$SCRIPTS/clipboard-menu.sh" ;;
+    *Widgets*)                 "$HOME/.local/bin/conky-toggle" ;;
+    *"Energia / Sessão"*)      "$HOME/.config/waybar/power-menu.sh" ;;
+  esac
+fi
