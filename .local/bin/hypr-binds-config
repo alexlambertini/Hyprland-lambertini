@@ -122,6 +122,12 @@ def simplify_action(a):
         return "Pseudo-tile"
     if "togglesplit" in a:
         return "Alternar split (layout)"
+    if "window.float" in a and "window.center" in a:
+        return "Flutuar/tiling + centralizar"
+    if "window.float" in a:
+        return "Flutuar/tiling"
+    if "window.center" in a:
+        return "Centralizar janela"
     if "window.drag" in a:
         return "Arrastar janela (mouse)"
     if "window.resize" in a and "mouse" in a:
@@ -132,14 +138,43 @@ def simplify_action(a):
         return "Mover janela (direção)"
     if "window.move" in a and "workspace" in a:
         return "Mover janela para workspace"
+    if "cycle_next" in a:
+        return "Alternar janelas (Alt+Tab)"
     if "focus" in a and "workspace" in a:
         return "Focar workspace"
+    if "focus" in a and "monitor" in a:
+        return "Focar monitor (anterior/próximo)"
     if "focus" in a and "direction" in a:
         return "Focar janela (direção)"
     if "special" in a.lower():
         return "Workspace especial (scratchpad)"
     a = re.sub(r"\s+", " ", a)
     return a[:120] + ("…" if len(a) > 120 else "")
+
+
+def split_top_level(call):
+    """Divide os argumentos de topo de uma chamada, respeitando strings e ()/{}."""
+    depth = 0
+    instr = False
+    esc = False
+    for idx, ch in enumerate(call):
+        if instr:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == '"':
+                instr = False
+            continue
+        if ch == '"':
+            instr = True
+        elif ch in "({":
+            depth += 1
+        elif ch in ")}":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            return call[:idx], call[idx + 1:]
+    return call, ""
 
 
 def parse_existing_binds():
@@ -161,17 +196,34 @@ def parse_existing_binds():
         seen.add(item)
         results.append({"keys": item[0], "action": item[1]})
 
-    for m in re.finditer(r'hl\.bind\(\s*mainMod\s*\.\.\s*"([^"]+)"\s*,\s*([^\n]+)\)\s*(?:,|\n|\))', text):
-        k = "SUPER" + m.group(1)
-        a = m.group(2).strip().rstrip(",")
-        add(k, simplify_action(a))
+    # Percorre cada hl.bind( ... ) com parênteses balanceados (cobre binds multilinha).
+    for m in re.finditer(r"hl\.bind\(", text):
+        line_start = text.rfind("\n", 0, m.start()) + 1
+        if "--" in text[line_start:m.start()]:
+            continue  # bind comentado
+        i = m.end()
+        depth = 1
+        while i < len(text) and depth > 0:
+            ch = text[i]
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            i += 1
+        call = text[m.end():i - 1]
+        key_raw, action = split_top_level(call)
 
-    for m in re.finditer(r'hl\.bind\(\s*"([^"]+)"\s*,\s*([^\n]+)\)\s*(?:,|\n|\))', text):
-        k = m.group(1)
-        a = m.group(2).strip().rstrip(",")
-        add(k, simplify_action(a))
+        mk = re.fullmatch(r'mainMod\s*\.\.\s*"([^"]*)"', key_raw.strip())
+        if mk:
+            keytxt = "SUPER" + mk.group(1)
+        else:
+            mk2 = re.fullmatch(r'"([^"]*)"', key_raw.strip())
+            if not mk2:
+                continue  # chave dinâmica (ex.: laço for) tratada abaixo
+            keytxt = mk2.group(1)
+        add(keytxt, simplify_action(action))
 
-    if re.search(r'for\s+i\s*=\s*1\s*,\s*10', text) and re.search(r'workspace', text):
+    if re.search(r"for\s+i\s*=\s*1\s*,\s*10", text) and re.search(r"workspace", text):
         add("SUPER + 1..0", "Ir para workspace 1..10")
         add("SUPER + SHIFT + 1..0", "Mover janela para workspace 1..10")
 

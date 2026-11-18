@@ -343,11 +343,19 @@ hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("firefox"))
 
--- Navegação com setas: ←/→ workspaces (áreas de trabalho), ↑/↓ monitores
-hl.bind(mainMod .. " + left",  hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(mainMod .. " + right", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + up",    hl.dsp.focus({ monitor = "-1" }))
-hl.bind(mainMod .. " + down",  hl.dsp.focus({ monitor = "+1" }))
+-- Navegação com setas: ←/→/↑/↓ focam a janela na direção
+hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
+hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
+hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
+
+-- Monitores: SUPER + ALT + ←/→ (útil com 2+ telas; sem efeito com 1 monitor)
+hl.bind(mainMod .. " + ALT + left",  hl.dsp.focus({ monitor = "-1" }))
+hl.bind(mainMod .. " + ALT + right", hl.dsp.focus({ monitor = "+1" }))
+
+-- Alternar janelas (estilo Alt+Tab): próxima / anterior, trazendo ao topo
+hl.bind("ALT + Tab",         function() hl.dispatch(hl.dsp.window.cycle_next()) hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" })) end)
+hl.bind("ALT + SHIFT + Tab", function() hl.dispatch(hl.dsp.window.cycle_next({ next = false })) hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" })) end)
 
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
@@ -367,8 +375,8 @@ hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("~/.config/waybar/power-menu.sh"))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
 -- Scroll through existing workspaces with mainMod + scroll
--- hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
--- hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
+hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })

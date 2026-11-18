@@ -110,8 +110,10 @@ pkill -f music-notify.sh 2>/dev/null; ~/.config/hypr/scripts/music-notify.sh &
 - `SUPER + A` — abrir/fechar **OpenCode Assistente** (painel lateral/scratchpad)
 - `SUPER + Q` — fechar janela
 - `SUPER + V` — flutuar/tiling + centralizar
-- `SUPER + ←/→` — workspaces anterior/próximo (áreas de trabalho)
-- `SUPER + ↑/↓` — alternar entre monitores (indo e voltando)
+- `SUPER + ←/→/↑/↓` — focar a janela na direção
+- `ALT + Tab` / `ALT + SHIFT + Tab` — alternar janelas (próxima / anterior)
+- `SUPER + ALT + ←/→` — alternar entre monitores (útil com 2+ telas)
+- `SUPER + scroll (roda do mouse)` — workspaces anterior/próximo (áreas de trabalho)
 - `SUPER + SHIFT + ←/→/↑/↓` — mover janela
 - `SUPER + CTRL + ←/→/↑/↓` — redimensionar (segurar repete)
 - `SUPER + SHIFT + S` — captura de tela por região (salva em `~/Pictures/Screenshots` e copia para área de transferência)
