@@ -98,6 +98,11 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("pkill -x hypridle 2>/dev/null; hypridle &")
 end)
 
+-- Agente de autenticação polkit (montar discos, pedidos de senha no GUI)
+hl.on("hyprland.start", function ()
+    hl.exec_cmd("pkill -x lxpolkit 2>/dev/null; lxpolkit &")
+end)
+
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----
@@ -165,6 +170,10 @@ hl.config({
         -- Change transparency of focused and unfocused windows
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
+
+        -- Escurece levemente a(s) janela(s) sem foco (destaque na ativa)
+        dim_inactive = true,
+        dim_strength = 0.15,
 
         shadow = {
             enabled      = true,
@@ -390,9 +399,16 @@ hl.bind("SUPER + CTRL + Down",
 
 -- Captura de tela (região): SUPER + SHIFT + S
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot-region.sh"))
+-- Anotar captura (swappy): SUPER + SHIFT + Z
+hl.bind("SUPER + SHIFT + Z", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot-region.sh annotate"))
+-- Extrair texto da região (OCR -> área de transferência): SUPER + SHIFT + X
+hl.bind("SUPER + SHIFT + X", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot-region.sh ocr"))
 
 -- Histórico da área de transferência (cliphist)
 hl.bind("SUPER + SHIFT + V", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard-menu.sh"))
+
+-- Central de Controle (rede, áudio, mídia, energia, captura, widgets): SUPER + N
+hl.bind("SUPER + N", hl.dsp.exec_cmd("~/.config/hypr/scripts/control-center.sh"))
 
 -- Laptop multimedia keys for volume and LCD brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
