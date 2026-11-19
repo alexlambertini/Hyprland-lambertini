@@ -343,15 +343,11 @@ hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("firefox"))
 
--- Navegação com setas: ←/→/↑/↓ focam a janela na direção
-hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
-
--- Monitores: SUPER + ALT + ←/→ (útil com 2+ telas; sem efeito com 1 monitor)
-hl.bind(mainMod .. " + ALT + left",  hl.dsp.focus({ monitor = "-1" }))
-hl.bind(mainMod .. " + ALT + right", hl.dsp.focus({ monitor = "+1" }))
+-- Navegação com setas: ←/→ trocam de desktop (área de trabalho), ↑/↓ monitores
+hl.bind(mainMod .. " + left",  hl.dsp.focus({ workspace = "e-1" }))
+hl.bind(mainMod .. " + right", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind(mainMod .. " + up",    hl.dsp.focus({ monitor = "-1" }))
+hl.bind(mainMod .. " + down",  hl.dsp.focus({ monitor = "+1" }))
 
 -- Alternar janelas (estilo Alt+Tab): próxima / anterior, trazendo ao topo
 hl.bind("ALT + Tab",         function() hl.dispatch(hl.dsp.window.cycle_next()) hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" })) end)
@@ -485,6 +481,13 @@ hl.layer_rule({
     match        = { namespace = "rofi" },
     blur         = true,
     ignore_alpha = 0.5,
+})
+
+-- Animação das notificações (dunst): desliza da direita ao entrar e ao sair.
+hl.layer_rule({
+    name      = "notifications-anim",
+    match     = { namespace = "notifications" },
+    animation = "slide right",
 })
 
 -- Hyprland-run windowrule

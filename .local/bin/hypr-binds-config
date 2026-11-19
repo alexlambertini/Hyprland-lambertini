@@ -141,7 +141,7 @@ def simplify_action(a):
     if "cycle_next" in a:
         return "Alternar janelas (Alt+Tab)"
     if "focus" in a and "workspace" in a:
-        return "Focar workspace"
+        return "Trocar de desktop (workspace)"
     if "focus" in a and "monitor" in a:
         return "Focar monitor (anterior/próximo)"
     if "focus" in a and "direction" in a:
